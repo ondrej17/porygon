@@ -1,4 +1,5 @@
 # Default ignored files
 game.iws
 game.ipr
-porygon.iml
+#porygon.iml
+game.iml
