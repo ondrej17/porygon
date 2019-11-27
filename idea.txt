@@ -1,0 +1,22 @@
+>>> snake - discarded
+
+canvas size: 450 x 400
+size of game-ground: 400 x 400
+default position of snake: in the middle
+default length of snake: 2
+default direction of snake: right
+there will be more levels (10 or so)
+first level is without obstacles
+each level is more difficult, more obstacles, non-constant velocity
+fruit will appear randomly on game-ground
+after eating fruit snakes increase in length of 1
+after eating special fruit (different color and shape) speed increases/decreases and so on
+when snake hits the wall/obstacles/chasm player loses one life and level starts again
+
+>>> super mario +-
+
+>>> bubble shooter - kind of approved
+download/prepare all images that will be used in game:
+	- bubbles of different color - I have got green already, others will be made from the green one by setting rgb weights
+	- background (maybe more)
+	- buttons
