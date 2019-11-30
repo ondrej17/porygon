@@ -10,77 +10,89 @@ class Game:
 
 
 class Window:
-    width_of_left = 600
-    width_of_right = 200
-    height = 960
+    playground_width = 650
+    playground_height = 500
+    bottom_toolbar_width = 650
+    bottom_toolbar_height = 100
+    right_toolbar_width = 150
+    right_toolbar_height = 500
 
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("Porygon")
-        self.root.geometry("{}x{}".format(self.width_of_left + self.width_of_right, self.height))
-        self.main_frame = tk.Frame(self.root)
-        self.main_frame.pack()
+        self.root.geometry("{}x{}".format(self.playground_width + self.right_toolbar_width,
+                                          self.right_toolbar_height + self.bottom_toolbar_height))
+        self.root.resizable(False, False)
+        self.main_frame = tk.Frame(self.root, bg='SlateGray1')
+        self.main_frame.pack(expand=True)
 
-        # create toolbar that contains buttons, high-score, etc.
-        self.toolbar = tk.Canvas(self.main_frame,
-                                 bg='cornflowerblue',
-                                 width=self.width_of_right,
-                                 height=self.height)
-
-        # create canvas aka playground
+        # create playground, bottom and right toolbar
         self.playground = tk.Canvas(self.main_frame,
-                                    bg='pink',
-                                    width=self.width_of_left,
-                                    height=self.height)
+                                    bg='SlateGray1',
+                                    width=self.playground_width-20,
+                                    height=self.playground_height-20,
+                                    relief='sunken',
+                                    borderwidth=5)
+
+        self.bottom_toolbar = tk.Frame(self.main_frame,
+                                       bg='SlateGray1',
+                                       width=self.bottom_toolbar_width,
+                                       height=self.bottom_toolbar_height)
+
+        self.right_toolbar = tk.Frame(self.main_frame,
+                                      bg='SlateGray1',
+                                      width=self.right_toolbar_width,
+                                      height=self.right_toolbar_height)
+        self.about_frame = tk.Frame(self.main_frame,
+                                    bg='SlateGray1',
+                                    width=self.right_toolbar_width,
+                                    height=self.bottom_toolbar_height)
 
         # pack playground and right frame to main_frame
-        self.toolbar.pack(side='right')
-        self.playground.pack(side='left')
+        self.playground.grid(row=0, column=0, padx=10, pady=10, sticky='nw')
+        self.right_toolbar.grid(row=0, column=1, padx=0, pady=0, sticky='ne')
+        self.bottom_toolbar.grid(row=1, column=0, padx=0, pady=0, sticky='sw')
+        self.about_frame.grid(row=1, column=1, padx=0, pady=0, sticky='se')
 
-        # add background to playground
-        self.image = tk.PhotoImage(file='../images/background.png')
-        self.background = self.playground.create_image(self.width_of_left / 2, self.height / 2, image=self.image)
+        # add a marble to playground
+        self.marble_blue = tk.PhotoImage(file="../images/marble_blue.png")
+        self.playground.create_image(100, 100, image=self.marble_blue)
 
         # TODO: add stuff to the right frame
-        self.highscore = Highscore(self.toolbar)
-        self.score = Score(self.toolbar)
-        self.buttons = Buttons(self.toolbar)
+        self.score = Score(self.main_frame)
+        self.control_buttons = ControlButtons(self.main_frame)
 
         # TODO: add canon, next marbles to the playground
-        self.canon = Canon(self.playground)
-        self.cartridge = Cartridge(self.playground)
+        self.act_marble = ActMarble(self.main_frame)
+        self.next_marble_counter = MarbleCounter(self.main_frame)
+        self.next_marble_color = NextMarble(self.main_frame)
 
         # at the end of __init__
         self.root.mainloop()
 
 
-class Canon:
-    def __init__(self, playground):
-        pass
-
-
-class Cartridge:
-    def __init__(self, playground):
-        pass
-
-
-class Highscore:
-    def __init__(self, toolbar):
-        pass
-
-
 class Score:
-    def __init__(self, toolbar):
+    def __init__(self, frame):
         pass
 
 
-class Buttons:
-    def __init__(self, toolbar):
+class ControlButtons:
+    def __init__(self, frame):
         pass
 
 
-class Marble:
-    def __init__(self):
+class ActMarble:
+    def __init__(self, frame):
+        pass
+
+
+class MarbleCounter:
+    def __init__(self, frame):
+        pass
+
+
+class NextMarble:
+    def __init__(self, frame):
         pass
 
 
