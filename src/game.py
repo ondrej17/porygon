@@ -1,5 +1,6 @@
 import random
 import tkinter as tk
+from PIL import Image, ImageTk
 
 
 class Game:
@@ -88,17 +89,16 @@ class Window:
         self.show_marbles()
 
         # TODO: add stuff to the right frame
-        self.score = Score(self.main_frame)
-        self.control_buttons = ControlButtons(self.main_frame)
+        self.score = Score(self.right_toolbar)
+        self.control_buttons = ControlButtons(self.right_toolbar)
 
         # TODO: add canon, next marbles to the playground
-        self.act_marble = ActMarble(self.main_frame)
-        self.next_marble_counter = MarbleCounter(self.main_frame)
-        self.next_marble_color = NextMarble(self.main_frame)
+        self.act_marble = ActMarble(self.bottom_toolbar)
+        self.next_marble_counter = MarbleCounter(self.bottom_toolbar)
+        self.next_marble_color = NextMarble(self.bottom_toolbar)
 
         # at the end of __init__
         self.root.mainloop()
-
 
     def init_marbles(self):
         """
@@ -142,15 +142,81 @@ class Window:
         """
         for color in self.color_map.values():
             name_of_picture = "../images/marble_{}.png".format(color)
-            self.pictures[color] = tk.PhotoImage(file=name_of_picture)
-
-
-class Score:
-    def __init__(self, frame):
-        pass
+            img = Image.open(name_of_picture).resize((40, 40), Image.ANTIALIAS)
+            self.pictures[color] = ImageTk.PhotoImage(img)
 
 
 class ControlButtons:
+    def __init__(self, frame):
+        # width of buttons must be together equal to right_toolbar_width from Window
+        # TODO: create png images for these buttons, they may have different size, color
+        #  and they must have a name on itself restart button
+
+        # restart button
+        img = Image.open('../images/marble_green_restart.png').resize((70, 70), Image.ANTIALIAS)
+        self.restart_btn_image = ImageTk.PhotoImage(img)
+        restart_btn = tk.Button(frame, width=75,
+                                image=self.restart_btn_image,
+                                bg='#C0C0FF',
+                                relief='flat',
+                                command=self.click_restart,
+                                borderwidth=0,
+                                activebackground='#C0C0FF')
+        restart_btn.grid(row=0, column=0)
+
+        # help button
+        img = Image.open('../images/marble_purple_help.png').resize((50, 50), Image.ANTIALIAS)
+        self.help_btn_image = ImageTk.PhotoImage(img)
+
+        restart_btn = tk.Button(frame, width=75,
+                                image=self.help_btn_image,
+                                bg='#C0C0FF',
+                                relief='flat',
+                                command=self.click_help,
+                                borderwidth=0,
+                                activebackground='#C0C0FF')
+        restart_btn.grid(row=1, column=1)
+
+        # high-score button
+        img = Image.open('../images/marble_red_highscore.png').resize((80, 80), Image.ANTIALIAS)
+        self.highscore_btn_image = ImageTk.PhotoImage(img)
+
+        highscore_btn = tk.Button(frame, width=75,
+                                  image=self.highscore_btn_image,
+                                  bg='#C0C0FF',
+                                  relief='flat',
+                                  command=self.click_highscore,
+                                  borderwidth=0,
+                                  activebackground='#C0C0FF')
+        highscore_btn.grid(row=2, column=0)
+
+        # setup button
+        img = Image.open('../images/marble_yellow_setup.png').resize((70, 70), Image.ANTIALIAS)
+        self.setup_btn_image = ImageTk.PhotoImage(img)
+
+        setup_btn = tk.Button(frame, width=75,
+                              image=self.setup_btn_image,
+                              bg='#C0C0FF',
+                              relief='flat',
+                              command=self.click_setup,
+                              borderwidth=0,
+                              activebackground='#C0C0FF')
+        setup_btn.grid(row=3, column=1)
+
+    def click_restart(self):
+        print("Restart Button was pressed")
+
+    def click_help(self):
+        print("Help Button was pressed")
+
+    def click_highscore(self):
+        print("Highscore Button was pressed")
+
+    def click_setup(self):
+        print("Setup Button was pressed")
+
+
+class Score:
     def __init__(self, frame):
         pass
 
