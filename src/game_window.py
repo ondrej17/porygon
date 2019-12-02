@@ -23,7 +23,8 @@ class Window:
             3: 'green',
             4: 'purple',
             5: 'red',
-            6: 'yellow'
+            6: 'yellow',
+            7: 'grey'
         }
         self.pictures = {}                  # set of all tk.PhotoImage objects that are used for marbles
 
@@ -67,7 +68,7 @@ class Window:
         # set grid for playground, right toolbar, bottom toolbar and about frame
         self.playground.grid(row=0, column=0, padx=0, pady=0)
         self.right_toolbar.grid(row=0, column=1, padx=0, pady=0)
-        self.bottom_toolbar.grid(row=1, column=0, padx=0, pady=0)
+        self.bottom_toolbar.grid(row=1, column=0, padx=0, pady=0, sticky='w')
         self.about_frame.grid(row=1, column=1, padx=0, pady=0)
 
         # add information about game to about frame
@@ -97,9 +98,10 @@ class Window:
         self.score = Score(self.right_toolbar)
 
         # TODO: add canon, next marbles to the playground
-        self.act_marble = ActMarble(self.bottom_toolbar)
-        self.next_marble_counter = MarbleCounter(self.bottom_toolbar)
-        self.next_marble_color = NextMarble(self.bottom_toolbar)
+        # set color of actual and next marble randomly
+        self.next_marble = NextMarble(self.bottom_toolbar, self.pictures[self.color_map[random.randint(1, 6)]])
+        self.next_marble_counter = MarbleCounter(self.bottom_toolbar, self.pictures[self.color_map[7]])
+        self.act_marble = ActMarble(self.bottom_toolbar, self.pictures[self.color_map[random.randint(1, 6)]])
 
         # at the end of __init__
         self.root.mainloop()
@@ -148,6 +150,13 @@ class Window:
             name_of_picture = "../images/marble_{}.png".format(color)
             img = Image.open(name_of_picture).resize((40, 40), Image.ANTIALIAS)
             self.pictures[color] = ImageTk.PhotoImage(img)
+
+    def update_next_marble_color(self):
+        self.next_marble.update_color(self.pictures[self.color_map[random.randint(1, 6)]])
+
+    def update_act_marble_color(self):
+        next_color = self.next_marble.get_color()
+        self.act_marble.update_color(next_color)
 
 
 
