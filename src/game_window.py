@@ -1,3 +1,4 @@
+import math
 import random
 import tkinter as tk
 from PIL import Image, ImageTk
@@ -80,13 +81,7 @@ class Window:
                                      bg='#C0C0FF',
                                      font=("Helvetica", 16))
 
-        self.name_of_author = tk.Label(self.about_frame,
-                                       text='Ondrej Bily',
-                                       bg='#C0C0FF',
-                                       font=("Helvetica", 12))
-
         # pack name of game and name of author to about frame
-        self.name_of_author.pack()
         self.name_of_game.pack()
 
         # prepare pictures
@@ -94,9 +89,9 @@ class Window:
 
         # prepare the marbles and place them in the playground
         self.init_marbles()
-        #self.show_marbles()
+        self.show_marbles()
 
-        # TODO: add functionality to the buttons and make the the score counter work
+        # TODO: add functionality to the buttons and make the score counter work
         self.control_buttons = ControlButtons(self.right_toolbar)
         self.score = Score(self.right_toolbar)
 
@@ -109,6 +104,7 @@ class Window:
         # bind button1 click to fire function
         self.playground.bind('<Button-1>', self.fire_marble)
         self.you_are_playing = True
+        self.playground.fire_enabled = True
 
         # start the timer
         self.timer()
@@ -118,33 +114,39 @@ class Window:
 
     def timer(self):
         print('tik')
+
         if self.you_are_playing:
             self.playground.after(1000, self.timer)
 
     def fire_marble(self, event):
-        #print('Mouse clicked at:', event.x, event.y)
+        # print('Mouse clicked at:', event.x, event.y)
 
-        # create new marble
-        self.firing_marble = FiringMarble(self.playground, event.x, event.y, self.act_marble.get_picture(), self.marbles)
+        # create new marble (only if there is no flying marble)
+        if self.playground.fire_enabled:
+            self.playground.fire_enabled = False
 
-        # set correct color to act marble
-        self.update_act_marble_color()
+            self.firing_marble = FiringMarble(self.playground, event.x, event.y, self.act_marble.get_picture(),
+                                              self.marbles)
 
-        # update color of next marble
-        self.update_next_marble_color()
+            # set correct color to act marble
+            self.update_act_marble_color()
+
+            # update color of next marble
+            self.update_next_marble_color()
 
     def init_marbles(self):
         """
         initialisation of marbles at the beginning of game
         """
         marbles = list()
-        for row in range(7):
+        for row in range(6):
             marbles.append([])
             for column in range(16):
                 # each marble has assigned random number form 1 to 6
                 # numbers represent colors of marbles
                 marbles[row].append(random.randint(1, 6))
-        for row in range(7, 12):
+                # marbles[row].append(7)
+        for row in range(6, 16):
             marbles.append([])
             for column in range(16):
                 # each marble has assigned random number form 1 to 6
@@ -166,15 +168,16 @@ class Window:
         x, y = self.border_width + 20, self.border_width + 20
         for i in range(len(self.marbles)):
             for j in range(len(self.marbles[i])):
-                color = self.identify_color(self.marbles[i][j])
-                image = self.pictures[color]
-                self.playground.create_image(x, y, image=image)
+                if self.marbles[i][j] != 7:     # don't show grey marbles
+                    color = self.identify_color(self.marbles[i][j])
+                    image = self.pictures[color]
+                    self.playground.create_image(x, y, image=image)
                 x += 39
             y += 39
             if i % 2 == 1:
                 x = self.border_width + 20
             else:
-                x = self.border_width + 20 + 19.5
+                x = self.border_width + 20 + 20
 
     def init_pictures(self):
         """
@@ -186,9 +189,15 @@ class Window:
             self.pictures[color] = ImageTk.PhotoImage(img)
 
     def update_next_marble_color(self):
+        """
+        updates color of next marble to random color
+        """
         self.next_marble.update_color(self.pictures[self.color_map[random.randint(1, 6)]])
 
     def update_act_marble_color(self):
+        """
+        updates color of act marble based on the color of next marble
+        """
         next_color = self.next_marble.get_color()
         self.act_marble.update_color(next_color)
 
@@ -196,9 +205,7 @@ class Window:
 class FiringMarble:
     init_x = 326.5
     init_y = 550
-
-    # TODO: speed must be adjust for each direction
-    speed = 5
+    speed = 3
 
     def __init__(self, playground, dir_x, dir_y, picture, marbles):
         # this is the direction of fired marble
@@ -212,24 +219,28 @@ class FiringMarble:
                                                    image=self.picture)
         self.something_touched_me = False
 
-        #print('Direction:', self.direction_x, self.direction_y)
-        #print('Initial:  ', self.init_x, self.init_y)
         # set x and y
         self.x = self.init_x
         self.y = self.init_y
 
-        # find dx and dy
+        # calculate dx and dy
+        fi = math.atan(abs((self.direction_y - self.init_y)/(self.direction_x - self.init_x)))
+        self.dy = -math.sin(fi)
+
         if self.direction_x < self.init_x:
-            self.dx = -2
+            self.dx = -math.cos(fi)
         else:
-            self.dx = 2
-        self.dy = self.dx*(self.direction_y - self.init_y)/(self.direction_x - self.init_x)
+            self.dx = math.cos(fi)
 
         # immediately it must start moving
         self.inner_timer()
 
     def inner_timer(self):
-        #print('Position:', self.x, self.y)
+        """
+        inner timer for flying marble
+        it stops when you touch another marble of mantinel
+        """
+        # print('Position:', self.x, self.y)
         self.x = self.x + self.dx
         self.y = self.y + self.dy
         self.playground.coords(self.marble, self.x, self.y)
@@ -242,16 +253,48 @@ class FiringMarble:
 
         if self.something_touched_me:
             print("I arrived at the borders")
+
+            # enabled firing another marble
+            self.playground.fire_enabled = True
+
             # TODO: add the marble to array of marbles at the right position
-            #self.marbles[correct_position][correct_position] = self.picture
+            # self.marbles[correct_position][correct_position] = self.picture
 
     def touched_or_mantinel(self):
-        if self.x - 21 < 0 or self.x + 21 >= Window.playground_width:
-            self.dx *= -1
-        elif self.y - 21 < 0:   # TODO: marbles stops after top mantinel (depends on direction)
-            return True
+        """
+        finds out whether there is something around me, or whether I am at the border
+        """
 
+        # TODO: it does not work perfectly - solve it
+
+        row, column = self.detect_cell(self.x, self.y)
+        print(row, ':', column)
+
+        if self.marbles[row-1][column] != 7 or \
+                self.marbles[row-1][column+1] != 7 or \
+                self.marbles[row][column+1] != 7 or \
+                self.marbles[row+1][column+1] != 7 or \
+                self.marbles[row+1][column] != 7 or \
+                self.marbles[row][column-1] != 7:
+            return True
+        elif self.x - 21 < 0 or self.x + 21 >= Window.playground_width:
+            self.dx *= -1
+        elif self.y - 21 < 0:
+            return True
         return False
+
+    def detect_cell(self, x, y):
+        """
+        detects row and column of current cell
+        """
+        row = (y - Window.border_width - 20) // 39 + 1
+
+        if row % 2 == 1:
+            column = (x - Window.border_width - 20) // 39 + 1
+        else:
+            column = (x - Window.border_width - 20 - 20) // 39 + 1
+
+        return int(row), int(column)
 
 
 
