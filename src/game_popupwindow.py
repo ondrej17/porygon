@@ -1,7 +1,7 @@
 import tkinter as tk
 
 
-class PopupWindow(object):
+class PopupWindow:
     width = 300
     height = 200
 

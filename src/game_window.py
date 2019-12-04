@@ -15,9 +15,11 @@ class Window:
     border_width = 2
 
     def __init__(self, username):
-        self.username = username            # username of current player
+        self.mouse_y = 0
+        self.mouse_x = 0
+        self.username = username  # username of current player
         self.marbles = self.init_marbles()  # set of all marbles at the beginning of game
-        self.color_map = {                  # dictionary for resolving color from number
+        self.color_map = {  # dictionary for resolving color from number
             1: 'blue',
             2: 'blue_dark',
             3: 'green',
@@ -26,7 +28,8 @@ class Window:
             6: 'yellow',
             7: 'grey'
         }
-        self.pictures = {}                  # set of all tk.PhotoImage objects that are used for marbles
+        self.pictures = {}  # set of all tk.PhotoImage objects that are used for marbles
+        self.firing_marble = None
 
         # create Tk() object and set its properties
         self.root = tk.Tk()
@@ -91,7 +94,7 @@ class Window:
 
         # prepare the marbles and place them in the playground
         self.init_marbles()
-        self.show_marbles()
+        #self.show_marbles()
 
         # TODO: add functionality to the buttons and make the the score counter work
         self.control_buttons = ControlButtons(self.right_toolbar)
@@ -103,8 +106,32 @@ class Window:
         self.next_marble_counter = MarbleCounter(self.bottom_toolbar, self.pictures[self.color_map[7]])
         self.act_marble = ActMarble(self.bottom_toolbar, self.pictures[self.color_map[random.randint(1, 6)]])
 
+        # bind button1 click to fire function
+        self.playground.bind('<Button-1>', self.fire_marble)
+        self.you_are_playing = True
+
+        # start the timer
+        self.timer()
+
         # at the end of __init__
         self.root.mainloop()
+
+    def timer(self):
+        print('tik')
+        if self.you_are_playing:
+            self.playground.after(1000, self.timer)
+
+    def fire_marble(self, event):
+        #print('Mouse clicked at:', event.x, event.y)
+
+        # create new marble
+        self.firing_marble = FiringMarble(self.playground, event.x, event.y, self.act_marble.get_picture(), self.marbles)
+
+        # set correct color to act marble
+        self.update_act_marble_color()
+
+        # update color of next marble
+        self.update_next_marble_color()
 
     def init_marbles(self):
         """
@@ -117,6 +144,13 @@ class Window:
                 # each marble has assigned random number form 1 to 6
                 # numbers represent colors of marbles
                 marbles[row].append(random.randint(1, 6))
+        for row in range(7, 12):
+            marbles.append([])
+            for column in range(16):
+                # each marble has assigned random number form 1 to 6
+                # numbers represent colors of marbles
+                marbles[row].append(7)
+
         return marbles
 
     def identify_color(self, number):
@@ -157,6 +191,67 @@ class Window:
     def update_act_marble_color(self):
         next_color = self.next_marble.get_color()
         self.act_marble.update_color(next_color)
+
+
+class FiringMarble:
+    init_x = 326.5
+    init_y = 550
+
+    # TODO: speed must be adjust for each direction
+    speed = 5
+
+    def __init__(self, playground, dir_x, dir_y, picture, marbles):
+        # this is the direction of fired marble
+        self.marbles = marbles  # it adds itself to this array at the end
+        self.direction_x = dir_x
+        self.direction_y = dir_y
+        self.playground = playground
+        self.picture = picture
+
+        self.marble = self.playground.create_image(self.init_x, self.init_y,
+                                                   image=self.picture)
+        self.something_touched_me = False
+
+        #print('Direction:', self.direction_x, self.direction_y)
+        #print('Initial:  ', self.init_x, self.init_y)
+        # set x and y
+        self.x = self.init_x
+        self.y = self.init_y
+
+        # find dx and dy
+        if self.direction_x < self.init_x:
+            self.dx = -2
+        else:
+            self.dx = 2
+        self.dy = self.dx*(self.direction_y - self.init_y)/(self.direction_x - self.init_x)
+
+        # immediately it must start moving
+        self.inner_timer()
+
+    def inner_timer(self):
+        #print('Position:', self.x, self.y)
+        self.x = self.x + self.dx
+        self.y = self.y + self.dy
+        self.playground.coords(self.marble, self.x, self.y)
+
+        if not self.something_touched_me:
+            self.playground.after(self.speed, self.inner_timer)
+
+            # check if something touched me
+            self.something_touched_me = self.touched_or_mantinel()
+
+        if self.something_touched_me:
+            print("I arrived at the borders")
+            # TODO: add the marble to array of marbles at the right position
+            #self.marbles[correct_position][correct_position] = self.picture
+
+    def touched_or_mantinel(self):
+        if self.x - 21 < 0 or self.x + 21 >= Window.playground_width:
+            self.dx *= -1
+        elif self.y - 21 < 0:   # TODO: marbles stops after top mantinel (depends on direction)
+            return True
+
+        return False
 
 
 

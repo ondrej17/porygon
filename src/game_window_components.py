@@ -108,6 +108,7 @@ class NextMarble:
         self.next_marble_icon.grid(row=0, column=0)
 
     def update_color(self, picture):
+        self.next_marble = picture
         self.next_marble_icon.config(image=picture)
 
     def get_color(self):
@@ -165,4 +166,8 @@ class ActMarble:
         self.act_marble_icon.grid(row=0, column=2)
 
     def update_color(self, picture):
-        self.act_marble_icon.config(image=picture)
+        self.act_marble = picture
+        self.act_marble_icon.config(image=self.act_marble)
+
+    def get_picture(self):
+        return self.act_marble
