@@ -5,12 +5,13 @@ from PIL import Image, ImageTk
 class ControlButtons:
     def __init__(self, frame):
         # width of buttons must be together equal to right_toolbar_width from Window
+        self.frame = frame
 
         # restart button
         img = Image.open('../images/marble_green_restart.png').resize((70, 70), Image.ANTIALIAS)
         self.restart_btn_image = ImageTk.PhotoImage(img)
 
-        restart_btn = tk.Button(frame, width=75,
+        restart_btn = tk.Button(self.frame, width=75,
                                 image=self.restart_btn_image,
                                 bg='#C0C0FF',
                                 relief='flat',
@@ -23,7 +24,7 @@ class ControlButtons:
         img = Image.open('../images/marble_purple_help.png').resize((50, 50), Image.ANTIALIAS)
         self.help_btn_image = ImageTk.PhotoImage(img)
 
-        help_btn = tk.Button(frame, width=75,
+        help_btn = tk.Button(self.frame, width=75,
                              image=self.help_btn_image,
                              bg='#C0C0FF',
                              relief='flat',
@@ -36,7 +37,7 @@ class ControlButtons:
         img = Image.open('../images/marble_red_highscore.png').resize((80, 80), Image.ANTIALIAS)
         self.highscore_btn_image = ImageTk.PhotoImage(img)
 
-        highscore_btn = tk.Button(frame, width=75,
+        highscore_btn = tk.Button(self.frame, width=75,
                                   image=self.highscore_btn_image,
                                   bg='#C0C0FF',
                                   relief='flat',
@@ -49,7 +50,7 @@ class ControlButtons:
         img = Image.open('../images/marble_yellow_setup.png').resize((70, 70), Image.ANTIALIAS)
         self.setup_btn_image = ImageTk.PhotoImage(img)
 
-        setup_btn = tk.Button(frame, width=75,
+        setup_btn = tk.Button(self.frame, width=75,
                               image=self.setup_btn_image,
                               bg='#C0C0FF',
                               relief='flat',
@@ -60,6 +61,7 @@ class ControlButtons:
 
     def click_restart(self):
         print("Restart Button was pressed")
+        self.frame.restart_action = True
 
     def click_help(self):
         print("Help Button was pressed")
@@ -90,10 +92,10 @@ class Score:
 
 
 class NextMarble:
-    color = None
 
-    def __init__(self, frame, picture):
+    def __init__(self, frame, picture, color):
         self.frame = frame
+        self.color = color
 
         # create image with random color
         self.next_marble = picture
@@ -107,12 +109,16 @@ class NextMarble:
                                          activebackground='#C0C0FF')
         self.next_marble_icon.grid(row=0, column=0)
 
-    def update_color(self, picture):
+    def update_color(self, picture, color):
+        self.color = color
         self.next_marble = picture
         self.next_marble_icon.config(image=picture)
 
-    def get_color(self):
+    def get_picture(self):
         return self.next_marble
+
+    def get_color(self):
+        return self.color
 
 
 class MarbleCounter:
@@ -129,7 +135,7 @@ class MarbleCounter:
         self.inner_frame.grid_propagate(False)
 
         # create correct number of marbles
-        self.counter = 3
+        self.counter = 5
 
         for i in range(self.counter):
             self.marbles.append(tk.Label(self.inner_frame, height=100, width=37,
@@ -150,8 +156,9 @@ class MarbleCounter:
 
 
 class ActMarble:
-    def __init__(self, frame, picture):
+    def __init__(self, frame, picture, color):
         self.frame = frame
+        self.color = color
 
         # create image with random color
         self.act_marble = picture
@@ -165,9 +172,13 @@ class ActMarble:
                                         activebackground='#C0C0FF')
         self.act_marble_icon.grid(row=0, column=2)
 
-    def update_color(self, picture):
+    def update_color(self, picture, color):
+        self.color = color
         self.act_marble = picture
         self.act_marble_icon.config(image=self.act_marble)
 
     def get_picture(self):
         return self.act_marble
+
+    def get_color(self):
+        return self.color
