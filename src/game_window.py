@@ -7,7 +7,7 @@ from game_window_components import ControlButtons, Score, ActMarble, MarbleCount
 
 
 class Window:
-    playground_width = 650
+    playground_width = 660
     playground_height = 500
     bottom_toolbar_width = 650
     bottom_toolbar_height = 100
@@ -113,6 +113,7 @@ class Window:
         self.is_game_over = False
         self.playground.fire_enabled = True
         self.seconds = 0
+        self.achieved_score = 0
 
         # start the timer
         self.timer()
@@ -135,13 +136,23 @@ class Window:
                 self.is_game_over = True
 
         # when Restart Button is clicked, restart_action is True and this happens
-        if self.right_toolbar.restart_action or self.is_game_over:
+        if self.right_toolbar.restart_action:
             self.right_toolbar.restart_action = False
+            self.playground.delete('all')
+            self.marbles = self.init_marbles()
+            self.show_marbles()
+            self.show_grid()
+            self.score.restart_score()
+
+        if self.is_game_over:
             self.is_game_over = False
             self.playground.delete('all')
             self.marbles = self.init_marbles()
             self.show_marbles()
             self.show_grid()
+            self.achieved_score = self.score.get_score()
+            # TODO: do something with achieved score
+            self.score.restart_score()
 
         if self.you_are_playing:
             self.playground.after(500, self.timer)
@@ -162,7 +173,8 @@ class Window:
             # update color of next marble
             self.update_next_marble_color()
 
-    def init_marbles(self):
+    @staticmethod
+    def init_marbles():
         """
         initialisation of marbles at the beginning of game
         """
@@ -272,6 +284,8 @@ class FiringMarble:
         self.something_touched_me = False
         self.second_timer_first_time = True
         self.me_in_middle = False
+        self.neighb_with_same_color = 1
+        self.list_of_erased_marbles = set()
 
         # set x and y
         self.x = self.init_x
@@ -311,7 +325,7 @@ class FiringMarble:
 
             x_targ, y_targ = self.middle_of_cell(self.where_to_fall)
             self.fi = math.atan(abs((y_targ - self.y)/(x_targ - self.x)))
-            self.speed = 10
+            self.speed = 5
 
             if y_targ < self.y and x_targ < self.x:
                 self.dy = -math.sin(self.fi)
@@ -351,6 +365,18 @@ class FiringMarble:
 
             # enabled firing another marble
             self.playground.fire_enabled = True
+
+            # recursively destroy all marbles that have same color and are connected to through same-color marble
+            self.find_same_color_marbles(self.where_to_fall[0], self.where_to_fall[1], self.color)
+            if self.neighb_with_same_color >= 3:
+                # destroy them !!!
+                self.destroy_neighbours()
+
+            # add the number of erased marbles to actual score
+            if self.neighb_with_same_color > 1:
+                self.window.score.add_to_score(self.neighb_with_same_color)
+                # reset counter for neighbours with same color
+                self.neighb_with_same_color = 1
 
             # hide myself
             self.playground.itemconfigure(self.marble, state='hidden')
@@ -401,7 +427,8 @@ class FiringMarble:
 
         return int(row), int(column)
 
-    def middle_of_cell(self, coords):
+    @staticmethod
+    def middle_of_cell(coords):
         """
         returns coordinates of given cell
         """
@@ -427,6 +454,8 @@ class FiringMarble:
 
     def marble_in_my_way(self):
         # TODO: periodic boundary condition appeared, remove it
+        # TODO: if pi/2 self.fi < pi/3, it overwrites old marble
+        # TODO: if pi/2 self.fi < pi/6, it slides to next cell
 
         # I have: fi, row, column, marbles
 
@@ -613,6 +642,41 @@ class FiringMarble:
                         return True
                 except IndexError:
                     return False
+
+    def find_same_color_marbles(self, row, column, my_color):
+        # I have self.color, self.where_to_fall and self.marbles
+        # go through my neighbours and destroy them if they have same color and call this function again
+
+        # TODO: check whether I am at the edge, because there are less neighbours
+        #  then modify list of neighbours correspondingly
+        #  be careful about row (different neighbours for odd and even rows)
+
+        # here I must have correct list of neighbours
+        neighbours = []
+
+        # check all neighbours and if one has same color as I have, call this function again
+        for coords in neighbours:
+            ii = coords[0]
+            jj = coords[1]
+
+            if self.marbles[ii][jj] == my_color:
+                self.neighb_with_same_color += 1
+                self.list_of_erased_marbles.add((ii, jj))
+                self.find_same_color_marbles(ii, jj, self.marbles[ii][jj])
+
+    def destroy_neighbours(self):
+        """
+        destroys every marble in self.list_of_erased_marbles
+        """
+        print("erasing these marbles:")
+        for coords in self.list_of_erased_marbles:
+            ii = coords[0]
+            jj = coords[1]
+            print(coords, end=' ')
+            self.marbles[ii][jj] = 7
+        print()
+
+
 
 
 

@@ -14,6 +14,3 @@ class Game:
 
         # create window object (actual game)
         self.window = Window(self.username)
-
-    # TODO: other methods for Game object
-    #  e.g. timer

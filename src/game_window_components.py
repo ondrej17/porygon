@@ -85,10 +85,16 @@ class Score:
 
     def add_to_score(self, score):
         self.score += score
-        self.score_value.update()
+        print("Score =", self.score)
+        self.score_value.config(text="{}".format(self.score))
 
     def get_score(self):
         return self.score
+
+    def restart_score(self):
+        self.score = 0
+        print("Score =", self.score)
+        self.score_value.config(text="{}".format(self.score))
 
 
 class NextMarble:
