@@ -90,7 +90,7 @@ class Window:
         # prepare the marbles and place them in the playground
         self.init_marbles()
         self.show_marbles()
-        self.show_grid()
+        #self.show_grid()
 
         # listeners for buttons action
         self.right_toolbar.restart_action = False
@@ -149,16 +149,17 @@ class Window:
             self.playground.delete('all')
             self.marbles = self.init_marbles()
             self.show_marbles()
-            self.show_grid()
+            #self.show_grid()
             self.achieved_score = self.score.get_score()
             # TODO: do something with achieved score
+
             self.score.restart_score()
 
         if self.you_are_playing:
             self.playground.after(500, self.timer)
 
     def fire_marble(self, event):
-        #print('Marble fired towards:', event.x, event.y)
+        # print('Marble fired towards:', event.x, event.y)
 
         # create new marble (only if there is no flying marble)
         if self.playground.fire_enabled:
@@ -205,21 +206,23 @@ class Window:
         """
         shows marbles in playground
         """
+        self.playground.delete('all')
         x, y = self.border_width + 20, self.border_width + 20
         for i in range(len(self.marbles)):
             for j in range(len(self.marbles[i])):
-                if self.marbles[i][j] != 7:     # don't show grey marbles
+                if self.marbles[i][j] != 7:  # don't show grey marbles
                     color = self.identify_color(self.marbles[i][j])
                     image = self.pictures[color]
                     self.playground.create_image(x, y, image=image)
-                self.playground.create_text(x, y-10, text="{}:{}".format(x, y), font='Arial 7')
-                self.playground.create_text(x, y+10, text="{}:{}".format(i, j), font='Arial 7')
+                #self.playground.create_text(x, y - 10, text="{}:{}".format(x, y), font='Arial 7')
+                #self.playground.create_text(x, y + 10, text="{}:{}".format(i, j), font='Arial 7')
                 x += 40
             y += 40
             if i % 2 == 1:
                 x = self.border_width + 20
             else:
                 x = self.border_width + 20 + 20
+        self.playground.update()
 
     def show_grid(self):
         """
@@ -234,8 +237,8 @@ class Window:
                 x = self.border_width + 20 + 20
 
             for i in range(len(self.marbles[j])):
-                #print("line")
-                self.playground.create_line(x, y, x, y+40)
+                # print("line")
+                self.playground.create_line(x, y, x, y + 40)
                 x += 40
             self.playground.create_line(2, y, 646, y)
             y += 40
@@ -284,7 +287,7 @@ class FiringMarble:
         self.something_touched_me = False
         self.second_timer_first_time = True
         self.me_in_middle = False
-        self.neighb_with_same_color = 1
+        self.neighb_with_same_color = 0
         self.list_of_erased_marbles = set()
 
         # set x and y
@@ -301,14 +304,14 @@ class FiringMarble:
 
         # calculate dx and dy
         # fi is angle to which I shoot (event when marble is bounced from right/left mantinel, fi is same)
-        self.fi = math.atan(abs((self.direction_y - self.init_y)/(self.direction_x - self.init_x)))
-        self.dy = -5*math.sin(self.fi)
-        print("First FI =", math.degrees(self.fi))
+        self.fi = math.atan(abs((self.direction_y - self.init_y) / (self.direction_x - self.init_x)))
+        self.dy = -5 * math.sin(self.fi)
+        #print("First FI =", math.degrees(self.fi))
 
         if self.direction_x < self.init_x:
-            self.dx = -5*math.cos(self.fi)
+            self.dx = -5 * math.cos(self.fi)
         else:
-            self.dx = 5*math.cos(self.fi)
+            self.dx = 5 * math.cos(self.fi)
 
         # immediately it must start moving
         self.inner_timer()
@@ -320,11 +323,11 @@ class FiringMarble:
         """
         if self.something_touched_me:
 
-            print("I touched something")
-            print("ROW:COLUMN =", self.row, self.column)
+            #print("I touched something")
+            #print("ROW:COLUMN =", self.row, self.column)
 
             x_targ, y_targ = self.middle_of_cell(self.where_to_fall)
-            self.fi = math.atan(abs((y_targ - self.y)/(x_targ - self.x)))
+            self.fi = math.atan(abs((y_targ - self.y) / (x_targ - self.x)))
             self.speed = 5
 
             if y_targ < self.y and x_targ < self.x:
@@ -368,18 +371,43 @@ class FiringMarble:
 
             # recursively destroy all marbles that have same color and are connected to through same-color marble
             self.find_same_color_marbles(self.where_to_fall[0], self.where_to_fall[1], self.color)
+
+            # do sth
+            #print("DEBUG:", self.neighb_with_same_color)
             if self.neighb_with_same_color >= 3:
+                # add me to the list
+                self.list_of_erased_marbles.add((self.where_to_fall[0], self.where_to_fall[1]))
+                # print list of to-be erased marbles
+                #print("To- be erased marbles:", self.list_of_erased_marbles)
+                # find score
+                self.neighb_with_same_color = len(self.list_of_erased_marbles)
                 # destroy them !!!
+                #print("# of neighbours with same color:", self.neighb_with_same_color)
                 self.destroy_neighbours()
 
             # add the number of erased marbles to actual score
-            if self.neighb_with_same_color > 1:
+            if self.neighb_with_same_color >= 3:
+                print("Add to score:", self.neighb_with_same_color)
                 self.window.score.add_to_score(self.neighb_with_same_color)
-                # reset counter for neighbours with same color
-                self.neighb_with_same_color = 1
+
+            # reset counter for neighbours with same color
+            self.neighb_with_same_color = 0
+            self.list_of_erased_marbles = set()
 
             # hide myself
             self.playground.itemconfigure(self.marble, state='hidden')
+
+            # # print current marbles
+            # print("show marbles:\n")
+            # for line in self.marbles:
+            #     for number in line:
+            #         if number != 7:
+            #             print(number, end=' ')
+            #         else:
+            #             print('.', end=' ')
+            #     print()
+
+            # update playground with erased marbles
             self.window.show_marbles()
         else:
             self.x = self.x + self.dx
@@ -402,8 +430,8 @@ class FiringMarble:
         # i have got an array of marbles that are currently on playground: self.marbles
         # check whether I hit right or left mantinel
         if self.x - 21 < 0 or self.x + 21 >= Window.playground_width:
-            self.dx *= -1   # change direction in x axis
-        elif self.y - 21 < 0:   # Am I at the top mantinel??? Then stop!
+            self.dx *= -1  # change direction in x axis
+        elif self.y - 21 < 0:  # Am I at the top mantinel??? Then stop!
             return True
         elif self.marble_in_my_way():
             return True
@@ -417,7 +445,7 @@ class FiringMarble:
         """
         row = (self.y - Window.border_width) // 40
 
-        if row % 2 == 0:    # starts on the left mantinel
+        if row % 2 == 0:  # starts on the left mantinel
             column = (self.x - Window.border_width) // 40
         else:
             column = (self.x - Window.border_width - 20) // 40
@@ -436,9 +464,9 @@ class FiringMarble:
 
         y = Window.border_width + 40 * row + 20
 
-        if row % 2 == 0:   # starts on the left mantinel
+        if row % 2 == 0:  # starts on the left mantinel
             x = Window.border_width + 40 * column + 20
-        else:                   # starts 20 pixel away from the right mantinel
+        else:  # starts 20 pixel away from the right mantinel
             x = Window.border_width + 40 * column + 20 + 20
         return x, y
 
@@ -448,7 +476,7 @@ class FiringMarble:
         """
         x, y = self.middle_of_cell(self.where_to_fall)
 
-        dist = math.sqrt((x-self.x)**2 + (y-self.y)**2)
+        dist = math.sqrt((x - self.x) ** 2 + (y - self.y) ** 2)
 
         return dist < 1
 
@@ -456,20 +484,21 @@ class FiringMarble:
         # TODO: periodic boundary condition appeared, remove it
         # TODO: if pi/2 self.fi < pi/3, it overwrites old marble
         # TODO: if pi/2 self.fi < pi/6, it slides to next cell
+        # TODO: when hitting row 0, it runs to completely different target, maybe it is connected to PBC
 
         # I have: fi, row, column, marbles
 
-        if self.row % 2 == 0:   # starts on the left mantinel
+        if self.row % 2 == 0:  # starts on the left mantinel
 
             # to the right, 0 < fi < pi/6
-            if 0 < self.fi < math.pi/6 and self.dx > 0:
+            if 0 < self.fi < math.pi / 6 and self.dx > 0:
                 try:
-                    if self.marbles[self.row][self.column+1] != 7:
-                        if self.marbles[self.row-1][self.column] == 7:
-                            self.where_to_fall = (self.row-1, self.column)
+                    if self.marbles[self.row][self.column + 1] != 7:
+                        if self.marbles[self.row - 1][self.column] == 7:
+                            self.where_to_fall = (self.row - 1, self.column)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row, self.column-1)
+                                self.where_to_fall = (self.row, self.column - 1)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -477,14 +506,14 @@ class FiringMarble:
                     return False
 
             # to the right: pi/6 < fi < pi/3
-            elif math.pi/6 < self.fi <= math.pi/3 and self.dx > 0:
+            elif math.pi / 6 < self.fi <= math.pi / 3 and self.dx > 0:
                 try:
-                    if self.marbles[self.row-1][self.column] != 7:
-                        if self.marbles[self.row][self.column+1] == 7:
-                            self.where_to_fall = (self.row, self.column+1)
+                    if self.marbles[self.row - 1][self.column] != 7:
+                        if self.marbles[self.row][self.column + 1] == 7:
+                            self.where_to_fall = (self.row, self.column + 1)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row+1, self.column+1)
+                                self.where_to_fall = (self.row + 1, self.column + 1)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -492,14 +521,14 @@ class FiringMarble:
                     return False
 
             # to the right: pi/3 < fi < pi/2
-            elif math.pi/3 < self.fi <= math.pi/2 and self.dx > 0:
+            elif math.pi / 3 < self.fi <= math.pi / 2 and self.dx > 0:
                 try:
-                    if self.marbles[self.row-1][self.column] != 7:
-                        if self.marbles[self.row-1][self.column-1] == 7:
-                            self.where_to_fall = (self.row-1, self.column-1)
+                    if self.marbles[self.row - 1][self.column] != 7:
+                        if self.marbles[self.row - 1][self.column - 1] == 7:
+                            self.where_to_fall = (self.row - 1, self.column - 1)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row+1, self.column+1)
+                                self.where_to_fall = (self.row + 1, self.column + 1)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -507,14 +536,14 @@ class FiringMarble:
                     return False
 
             # to the left, 0 < fi < pi/6
-            if 0 < self.fi < math.pi/6 and self.dx < 0:
+            if 0 < self.fi < math.pi / 6 and self.dx < 0:
                 try:
-                    if self.marbles[self.row][self.column-1] != 7:
-                        if self.marbles[self.row-1][self.column-1] == 7:
-                            self.where_to_fall = (self.row-1, self.column-1)
+                    if self.marbles[self.row][self.column - 1] != 7:
+                        if self.marbles[self.row - 1][self.column - 1] == 7:
+                            self.where_to_fall = (self.row - 1, self.column - 1)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row, self.column+1)
+                                self.where_to_fall = (self.row, self.column + 1)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -522,14 +551,14 @@ class FiringMarble:
                     return False
 
             # to the left: pi/6 < fi < pi/3
-            elif math.pi/6 < self.fi <= math.pi/3 and self.dx < 0:
+            elif math.pi / 6 < self.fi <= math.pi / 3 and self.dx < 0:
                 try:
-                    if self.marbles[self.row-1][self.column-1] != 7:
-                        if self.marbles[self.row][self.column-1] == 7:
-                            self.where_to_fall = (self.row, self.column-1)
+                    if self.marbles[self.row - 1][self.column - 1] != 7:
+                        if self.marbles[self.row][self.column - 1] == 7:
+                            self.where_to_fall = (self.row, self.column - 1)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row+1, self.column)
+                                self.where_to_fall = (self.row + 1, self.column)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -537,31 +566,31 @@ class FiringMarble:
                     return False
 
             # to the left: pi/3 < fi < pi/2
-            elif math.pi/3 < self.fi <= math.pi/2 and self.dx < 0:
+            elif math.pi / 3 < self.fi <= math.pi / 2 and self.dx < 0:
                 try:
-                    if self.marbles[self.row-1][self.column-1] != 7:
-                        if self.marbles[self.row-1][self.column] == 7:
-                            self.where_to_fall = (self.row-1, self.column)
+                    if self.marbles[self.row - 1][self.column - 1] != 7:
+                        if self.marbles[self.row - 1][self.column] == 7:
+                            self.where_to_fall = (self.row - 1, self.column)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row+1, self.column)
+                                self.where_to_fall = (self.row + 1, self.column)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
                 except IndexError:
                     return False
 
-        else:                   # starts 20 pixel away from the right mantinel
+        else:  # starts 20 pixel away from the right mantinel
 
             # to the right, 0 < fi < pi/6
-            if 0 < self.fi < math.pi/6 and self.dx > 0:
+            if 0 < self.fi < math.pi / 6 and self.dx > 0:
                 try:
-                    if self.marbles[self.row][self.column+1] != 7:
-                        if self.marbles[self.row-1][self.column+1] == 7:
-                            self.where_to_fall = (self.row-1, self.column+1)
+                    if self.marbles[self.row][self.column + 1] != 7:
+                        if self.marbles[self.row - 1][self.column + 1] == 7:
+                            self.where_to_fall = (self.row - 1, self.column + 1)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row, self.column-1)
+                                self.where_to_fall = (self.row, self.column - 1)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -569,14 +598,14 @@ class FiringMarble:
                     return False
 
             # to the right: pi/6 < fi < pi/3
-            elif math.pi/6 < self.fi <= math.pi/3 and self.dx > 0:
+            elif math.pi / 6 < self.fi <= math.pi / 3 and self.dx > 0:
                 try:
-                    if self.marbles[self.row-1][self.column+1] != 7:
-                        if self.marbles[self.row][self.column+1] == 7:
-                            self.where_to_fall = (self.row, self.column+1)
+                    if self.marbles[self.row - 1][self.column + 1] != 7:
+                        if self.marbles[self.row][self.column + 1] == 7:
+                            self.where_to_fall = (self.row, self.column + 1)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row+1, self.column)
+                                self.where_to_fall = (self.row + 1, self.column)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -584,14 +613,14 @@ class FiringMarble:
                     return False
 
             # to the right: pi/3 < fi < pi/2
-            elif math.pi/3 < self.fi <= math.pi/2 and self.dx > 0:
+            elif math.pi / 3 < self.fi <= math.pi / 2 and self.dx > 0:
                 try:
-                    if self.marbles[self.row-1][self.column+1] != 7:
-                        if self.marbles[self.row-1][self.column] == 7:
-                            self.where_to_fall = (self.row-1, self.column)
+                    if self.marbles[self.row - 1][self.column + 1] != 7:
+                        if self.marbles[self.row - 1][self.column] == 7:
+                            self.where_to_fall = (self.row - 1, self.column)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row+1, self.column)
+                                self.where_to_fall = (self.row + 1, self.column)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -599,14 +628,14 @@ class FiringMarble:
                     return False
 
             # to the left, 0 < fi < pi/6
-            if 0 < self.fi < math.pi/6 and self.dx < 0:
+            if 0 < self.fi < math.pi / 6 and self.dx < 0:
                 try:
-                    if self.marbles[self.row][self.column-1] != 7:
-                        if self.marbles[self.row-1][self.column] == 7:
-                            self.where_to_fall = (self.row-1, self.column)
+                    if self.marbles[self.row][self.column - 1] != 7:
+                        if self.marbles[self.row - 1][self.column] == 7:
+                            self.where_to_fall = (self.row - 1, self.column)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row, self.column+1)
+                                self.where_to_fall = (self.row, self.column + 1)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -614,14 +643,14 @@ class FiringMarble:
                     return False
 
             # to the left: pi/6 < fi < pi/3
-            elif math.pi/6 < self.fi <= math.pi/3 and self.dx < 0:
+            elif math.pi / 6 < self.fi <= math.pi / 3 and self.dx < 0:
                 try:
-                    if self.marbles[self.row-1][self.column] != 7:
-                        if self.marbles[self.row][self.column-1] == 7:
-                            self.where_to_fall = (self.row, self.column-1)
+                    if self.marbles[self.row - 1][self.column] != 7:
+                        if self.marbles[self.row][self.column - 1] == 7:
+                            self.where_to_fall = (self.row, self.column - 1)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row+1, self.column+1)
+                                self.where_to_fall = (self.row + 1, self.column + 1)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -629,14 +658,14 @@ class FiringMarble:
                     return False
 
             # to the left: pi/3 < fi < pi/2
-            elif math.pi/3 < self.fi <= math.pi/2 and self.dx < 0:
+            elif math.pi / 3 < self.fi <= math.pi / 2 and self.dx < 0:
                 try:
-                    if self.marbles[self.row-1][self.column] != 7:
-                        if self.marbles[self.row-1][self.column+1] == 7:
-                            self.where_to_fall = (self.row-1, self.column+1)
+                    if self.marbles[self.row - 1][self.column] != 7:
+                        if self.marbles[self.row - 1][self.column + 1] == 7:
+                            self.where_to_fall = (self.row - 1, self.column + 1)
                         else:
                             if self.marbles[self.row][self.column] != 7:
-                                self.where_to_fall = (self.row+1, self.column+1)
+                                self.where_to_fall = (self.row + 1, self.column + 1)
                             else:
                                 self.where_to_fall = (self.row, self.column)
                         return True
@@ -647,37 +676,73 @@ class FiringMarble:
         # I have self.color, self.where_to_fall and self.marbles
         # go through my neighbours and destroy them if they have same color and call this function again
 
-        # TODO: check whether I am at the edge, because there are less neighbours
-        #  then modify list of neighbours correspondingly
-        #  be careful about row (different neighbours for odd and even rows)
+        #print("starting to finding same color neighbours:", my_color)
 
-        # here I must have correct list of neighbours
-        neighbours = []
+        # set correct neighbours
+        if row == 0 and (column != 0 and column != len(self.marbles[0])):
+            neighbours = [(row, column + 1), (row, column - 1), (row + 1, column + 1), (row + 1, column)]
+        elif row == 0 and column == 0:
+            neighbours = [(row, column + 1), (row + 1, column)]
+        elif row == 0 and column == 0:
+            neighbours = [(row, column - 1), (row + 1, column + 1), (row + 1, column)]
 
-        # check all neighbours and if one has same color as I have, call this function again
+        elif column == 0 and row % 2 == 0:
+            neighbours = [(row, column + 1), (row - 1, column), (row + 1, column)]
+        elif column == 0 and row % 2 == 1:
+            neighbours = [(row, column + 1), (row - 1, column + 1), (row - 1, column), (row + 1, column),
+                          (row + 1, column + 1)]
+
+        elif column == len(self.marbles[0])-1 and row % 2 == 0:
+            neighbours = [(row - 1, column), (row - 1, column - 1), (row, column - 1), (row + 1, column - 1),
+                          (row + 1, column)]
+        elif column == len(self.marbles[0])-1 and row % 2 == 1:
+            neighbours = [(row - 1, column), (row, column - 1), (row + 1, column)]
+
+        else:
+            if row % 2 == 0:
+                neighbours = [(row, column + 1), (row - 1, column), (row - 1, column - 1),
+                              (row, column - 1), (row + 1, column - 1), (row + 1, column)]
+            else:
+                neighbours = [(row, column + 1), (row - 1, column + 1), (row - 1, column),
+                              (row, column - 1), (row + 1, column), (row + 1, column + 1)]
+
+        #print("These are your neighbours:", neighbours)
+
+        # check all neighbours and if one has same color as I have, remember it
+        coords_with_same_color = []
         for coords in neighbours:
             ii = coords[0]
             jj = coords[1]
 
             if self.marbles[ii][jj] == my_color:
-                self.neighb_with_same_color += 1
-                self.list_of_erased_marbles.add((ii, jj))
-                self.find_same_color_marbles(ii, jj, self.marbles[ii][jj])
+                coords_with_same_color.append((ii, jj))
+
+        #print("same color neighbours:", coords_with_same_color)
+
+        # call this function again for those neighbours that have same color
+        if len(coords_with_same_color) != 0:
+            for coords in coords_with_same_color:
+                ii = coords[0]
+                jj = coords[1]
+
+                if (ii, jj) not in self.list_of_erased_marbles:
+                    #print("start find_same_color_marbles")
+                    self.list_of_erased_marbles.add((ii, jj))
+                    self.find_same_color_marbles(ii, jj, self.marbles[ii][jj])
+                    self.neighb_with_same_color += 1
+                    #print("end find_same_color_marble")
+        else:
+            #print("trivial case")
+            pass
 
     def destroy_neighbours(self):
         """
         destroys every marble in self.list_of_erased_marbles
         """
-        print("erasing these marbles:")
+        #print("erasing these marbles:", end=' ')
         for coords in self.list_of_erased_marbles:
             ii = coords[0]
             jj = coords[1]
-            print(coords, end=' ')
+            #print(coords, end=' ')
             self.marbles[ii][jj] = 7
-        print()
-
-
-
-
-
-
+        #print()
