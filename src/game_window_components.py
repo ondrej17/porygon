@@ -1,11 +1,13 @@
+import json
 import tkinter as tk
 from PIL import Image, ImageTk
 
 
 class ControlButtons:
-    def __init__(self, frame):
+    def __init__(self, frame, window):
         # width of buttons must be together equal to right_toolbar_width from Window
         self.frame = frame
+        self.window = window
 
         # restart button
         img = Image.open('../images/marble_green_restart.png').resize((70, 70), Image.ANTIALIAS)
@@ -60,17 +62,94 @@ class ControlButtons:
         setup_btn.grid(row=3, column=1)
 
     def click_restart(self):
+        """
+        when restart button is pressed, score is not saved
+            playground is restored to starting point
+        """
         print("Restart Button was pressed")
-        self.frame.restart_action = True
+        self.window.playground.delete('all')
+        self.window.marbles = self.window.init_marbles()
+        self.window.show_marbles()
+        # self.window.show_grid()
+        self.window.score.restart_score()
 
     def click_help(self):
+        """
+        when help is pressed, nothing happens so far
+        """
         print("Help Button was pressed")
 
     def click_highscore(self):
+        """
+        when highscore button is pressed, a popup windows shows up with table of highscore
+        """
         print("Highscore Button was pressed")
+
+        # create highscore popup window
+        HighscoreTable()
 
     def click_setup(self):
         print("Setup Button was pressed")
+
+
+class HighscoreTable(object):
+    width = 400
+    height = 200
+
+    def __init__(self):
+        # load highscore (must be in format of json file):
+        data = self.load_data('../docs/highscore.txt')     # do sth with data
+        print(data)
+
+        # create root Tk object and set its properties
+        self.root = tk.Tk()
+        self.root.title("Highscore")
+        self.root.geometry("{}x{}".format(self.width, self.height))
+        self.root.resizable(False, False)
+
+        # create MAIN FRAME and set its properties
+        self.main_frame = tk.Frame(self.root, bg='#C0C0FF')
+        self.main_frame.pack(expand=True, fill='both')
+
+        # layout table with highscore
+        b = None
+        cells = {}
+        for i, key in enumerate(data.keys()):     # Rows
+            for j in range(2):      # Columns
+                if j == 0:
+                    b = tk.Label(self.main_frame, height=20, width=100,
+                                 text=key,
+                                 bg='#C0C0FF',
+                                 relief='flat',
+                                 borderwidth=0,
+                                 activebackground='#C0C0FF')
+                    b.grid(row=i, column=j)
+                elif j == 1:
+                    b = tk.Label(self.main_frame,  height=20, width=100,
+                                 text=data[key],
+                                 bg='#C0C0FF',
+                                 relief='flat',
+                                 borderwidth=0,
+                                 activebackground='#C0C0FF')
+                    b.grid(row=i, column=j)
+
+                cells[(i, j)] = b
+
+        # at the end of __init__
+        self.root.mainloop()
+
+    @staticmethod
+    def load_data(filename):
+        """
+        loads data from json file self.filename
+        """
+        return json.load(open(filename))
+
+    def kill_myself(self, event):
+        """
+        closes popup window
+        """
+        self.root.destroy()
 
 
 class Score:
@@ -128,6 +207,8 @@ class NextMarble:
 
 
 class MarbleCounter:
+    default_counter = 3
+
     def __init__(self, frame, picture):
         self.frame = frame
 
@@ -141,7 +222,7 @@ class MarbleCounter:
         self.inner_frame.grid_propagate(False)
 
         # create correct number of marbles
-        self.counter = 5
+        self.counter = self.default_counter
 
         for i in range(self.counter):
             self.marbles.append(tk.Label(self.inner_frame, height=100, width=37,
@@ -159,6 +240,9 @@ class MarbleCounter:
 
         for i in range(self.counter):
             self.marbles[i].grid(row=0, column=1 + i)
+
+    def get_counter(self):
+        return self.counter
 
 
 class ActMarble:

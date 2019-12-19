@@ -90,22 +90,22 @@ class Window:
         # prepare the marbles and place them in the playground
         self.init_marbles()
         self.show_marbles()
-        #self.show_grid()
+        # self.show_grid()
 
         # listeners for buttons action
         self.right_toolbar.restart_action = False
 
-        # TODO: add functionality to the buttons and make the score counter work
-        self.control_buttons = ControlButtons(self.right_toolbar)
+        # TODO: add functionality to the buttons
+        self.control_buttons = ControlButtons(self.right_toolbar, self)
         self.score = Score(self.right_toolbar)
 
-        # TODO: add canon, next marbles to the playground
         # set color of actual and next marble randomly
         color = random.randint(1, 6)
         self.next_marble = NextMarble(self.bottom_toolbar, self.pictures[self.color_map[color]], color)
         self.next_marble_counter = MarbleCounter(self.bottom_toolbar, self.pictures[self.color_map[7]])
         color = random.randint(1, 6)
         self.act_marble = ActMarble(self.bottom_toolbar, self.pictures[self.color_map[color]], color)
+        # TODO: add arrow that points towards the mouse pointer
 
         # bind button1 click to fire function
         self.playground.bind('<Button-1>', self.fire_marble)
@@ -135,24 +135,17 @@ class Window:
                 print('Game Over')
                 self.is_game_over = True
 
-        # when Restart Button is clicked, restart_action is True and this happens
-        if self.right_toolbar.restart_action:
-            self.right_toolbar.restart_action = False
-            self.playground.delete('all')
-            self.marbles = self.init_marbles()
-            self.show_marbles()
-            self.show_grid()
-            self.score.restart_score()
-
         if self.is_game_over:
             self.is_game_over = False
             self.playground.delete('all')
             self.marbles = self.init_marbles()
             self.show_marbles()
-            #self.show_grid()
+            # self.show_grid()
             self.achieved_score = self.score.get_score()
-            # TODO: do something with achieved score
+            print("Achieved Score:", self.achieved_score)
+            # TODO: write achieved score to json file
 
+            # restart score
             self.score.restart_score()
 
         if self.you_are_playing:
@@ -214,8 +207,8 @@ class Window:
                     color = self.identify_color(self.marbles[i][j])
                     image = self.pictures[color]
                     self.playground.create_image(x, y, image=image)
-                #self.playground.create_text(x, y - 10, text="{}:{}".format(x, y), font='Arial 7')
-                #self.playground.create_text(x, y + 10, text="{}:{}".format(i, j), font='Arial 7')
+                # self.playground.create_text(x, y - 10, text="{}:{}".format(x, y), font='Arial 7')
+                # self.playground.create_text(x, y + 10, text="{}:{}".format(i, j), font='Arial 7')
                 x += 40
             y += 40
             if i % 2 == 1:
@@ -306,7 +299,7 @@ class FiringMarble:
         # fi is angle to which I shoot (event when marble is bounced from right/left mantinel, fi is same)
         self.fi = math.atan(abs((self.direction_y - self.init_y) / (self.direction_x - self.init_x)))
         self.dy = -5 * math.sin(self.fi)
-        #print("First FI =", math.degrees(self.fi))
+        # print("First FI =", math.degrees(self.fi))
 
         if self.direction_x < self.init_x:
             self.dx = -5 * math.cos(self.fi)
@@ -323,8 +316,8 @@ class FiringMarble:
         """
         if self.something_touched_me:
 
-            #print("I touched something")
-            #print("ROW:COLUMN =", self.row, self.column)
+            # print("I touched something")
+            # print("ROW:COLUMN =", self.row, self.column)
 
             x_targ, y_targ = self.middle_of_cell(self.where_to_fall)
             self.fi = math.atan(abs((y_targ - self.y) / (x_targ - self.x)))
@@ -373,17 +366,25 @@ class FiringMarble:
             self.find_same_color_marbles(self.where_to_fall[0], self.where_to_fall[1], self.color)
 
             # do sth
-            #print("DEBUG:", self.neighb_with_same_color)
+            # print("DEBUG:", self.neighb_with_same_color)
             if self.neighb_with_same_color >= 3:
                 # add me to the list
                 self.list_of_erased_marbles.add((self.where_to_fall[0], self.where_to_fall[1]))
                 # print list of to-be erased marbles
-                #print("To- be erased marbles:", self.list_of_erased_marbles)
+                # print("To- be erased marbles:", self.list_of_erased_marbles)
                 # find score
                 self.neighb_with_same_color = len(self.list_of_erased_marbles)
                 # destroy them !!!
-                #print("# of neighbours with same color:", self.neighb_with_same_color)
+                # print("# of neighbours with same color:", self.neighb_with_same_color)
                 self.destroy_neighbours()
+            else:
+                # remove one marble from next_marble_counter
+                number = self.window.next_marble_counter.get_counter()
+                self.window.next_marble_counter.set_number_of_marbles(number-1)
+
+            if self.window.next_marble_counter.get_counter() == 0:
+                self.marbles.insert(0, self.random_row())
+                self.window.next_marble_counter.set_number_of_marbles(self.window.next_marble_counter.default_counter)
 
             # add the number of erased marbles to actual score
             if self.neighb_with_same_color >= 3:
@@ -409,6 +410,8 @@ class FiringMarble:
 
             # update playground with erased marbles
             self.window.show_marbles()
+
+            # TODO: add erasing marbles that are not connected directly to top mantinel
         else:
             self.x = self.x + self.dx
             self.y = self.y + self.dy
@@ -419,11 +422,20 @@ class FiringMarble:
             # check whether I am in middle
             self.me_in_middle = self.is_close()
 
+    @staticmethod
+    def random_row():
+        row = []
+        for column in range(16):
+            # each marble has assigned random number form 1 to 6
+            # numbers represent colors of marbles
+            row.append(random.randint(1, 6))
+
+        return row
+
     def touched_or_mantinel(self):
         """
         tells me when to stop
         """
-
         # detect cell to which the marble currently belong
         self.row, self.column = self.detect_cell()
 
@@ -676,7 +688,7 @@ class FiringMarble:
         # I have self.color, self.where_to_fall and self.marbles
         # go through my neighbours and destroy them if they have same color and call this function again
 
-        #print("starting to finding same color neighbours:", my_color)
+        # print("starting to finding same color neighbours:", my_color)
 
         # set correct neighbours
         if row == 0 and (column != 0 and column != len(self.marbles[0])):
@@ -706,7 +718,7 @@ class FiringMarble:
                 neighbours = [(row, column + 1), (row - 1, column + 1), (row - 1, column),
                               (row, column - 1), (row + 1, column), (row + 1, column + 1)]
 
-        #print("These are your neighbours:", neighbours)
+        # print("These are your neighbours:", neighbours)
 
         # check all neighbours and if one has same color as I have, remember it
         coords_with_same_color = []
@@ -717,7 +729,7 @@ class FiringMarble:
             if self.marbles[ii][jj] == my_color:
                 coords_with_same_color.append((ii, jj))
 
-        #print("same color neighbours:", coords_with_same_color)
+        # print("same color neighbours:", coords_with_same_color)
 
         # call this function again for those neighbours that have same color
         if len(coords_with_same_color) != 0:
@@ -730,19 +742,19 @@ class FiringMarble:
                     self.list_of_erased_marbles.add((ii, jj))
                     self.find_same_color_marbles(ii, jj, self.marbles[ii][jj])
                     self.neighb_with_same_color += 1
-                    #print("end find_same_color_marble")
+                    # print("end find_same_color_marble")
         else:
-            #print("trivial case")
+            # print("trivial case")
             pass
 
     def destroy_neighbours(self):
         """
         destroys every marble in self.list_of_erased_marbles
         """
-        #print("erasing these marbles:", end=' ')
+        # print("erasing these marbles:", end=' ')
         for coords in self.list_of_erased_marbles:
             ii = coords[0]
             jj = coords[1]
-            #print(coords, end=' ')
+            # print(coords, end=' ')
             self.marbles[ii][jj] = 7
-        #print()
+        # print()
