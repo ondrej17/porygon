@@ -138,12 +138,19 @@ class Window:
         if self.is_game_over:
             self.is_game_over = False
             self.playground.delete('all')
+
+            # TODO: add a 'game-over' animation !
+            #  it should take cca. 5 seconds
+
+            # initialization of new set of marbles
             self.marbles = self.init_marbles()
             self.show_marbles()
             # self.show_grid()
+
+            # find actual score and save it
             self.achieved_score = self.score.get_score()
-            print("Achieved Score:", self.achieved_score)
-            # TODO: write achieved score to json file
+            # print("Achieved Score:", self.achieved_score)
+            self.control_buttons.save_highscore(self.username, self.achieved_score)
 
             # restart score
             self.score.restart_score()
@@ -282,6 +289,7 @@ class FiringMarble:
         self.me_in_middle = False
         self.neighb_with_same_color = 0
         self.list_of_erased_marbles = set()
+        self.list_of_disconnected_marbles = set()
 
         # set x and y
         self.x = self.init_x
@@ -382,6 +390,7 @@ class FiringMarble:
                 number = self.window.next_marble_counter.get_counter()
                 self.window.next_marble_counter.set_number_of_marbles(number-1)
 
+            # add random rows when next marble counter hits 0
             if self.window.next_marble_counter.get_counter() == 0:
                 self.marbles.insert(0, self.random_row())
                 self.window.next_marble_counter.set_number_of_marbles(self.window.next_marble_counter.default_counter)
@@ -412,6 +421,18 @@ class FiringMarble:
             self.window.show_marbles()
 
             # TODO: add erasing marbles that are not connected directly to top mantinel
+            self.list_of_disconnected_marbles = set()   # contains tuples (row, column) of marbles
+            self.find_disconnected_marbles()            # finds disconnected marbles
+
+            if len(self.list_of_disconnected_marbles) > 0:
+                self.destroy_disconnected()             # erases disconnected marbles
+
+            # reset list of disconnected marbles
+            self.list_of_disconnected_marbles = set()
+
+            # update playground with erased disconnected marbles
+            self.window.show_marbles()
+
         else:
             self.x = self.x + self.dx
             self.y = self.y + self.dy
@@ -689,7 +710,7 @@ class FiringMarble:
         # go through my neighbours and destroy them if they have same color and call this function again
 
         # print("starting to finding same color neighbours:", my_color)
-
+        # TODO: check coordination of all neighbours
         # set correct neighbours
         if row == 0 and (column != 0 and column != len(self.marbles[0])):
             neighbours = [(row, column + 1), (row, column - 1), (row + 1, column + 1), (row + 1, column)]
@@ -738,11 +759,9 @@ class FiringMarble:
                 jj = coords[1]
 
                 if (ii, jj) not in self.list_of_erased_marbles:
-                    #print("start find_same_color_marbles")
                     self.list_of_erased_marbles.add((ii, jj))
                     self.find_same_color_marbles(ii, jj, self.marbles[ii][jj])
                     self.neighb_with_same_color += 1
-                    # print("end find_same_color_marble")
         else:
             # print("trivial case")
             pass
@@ -753,6 +772,25 @@ class FiringMarble:
         """
         # print("erasing these marbles:", end=' ')
         for coords in self.list_of_erased_marbles:
+            ii = coords[0]
+            jj = coords[1]
+            # print(coords, end=' ')
+            self.marbles[ii][jj] = 7
+        # print()
+
+    def find_disconnected_marbles(self):
+        """
+        finds marbles that are not connected to to top mantinel
+        how ?
+        """
+        pass
+
+    def destroy_disconnected(self):
+        """
+        destroys every marble in self.list_of_disconnected_marbles
+        """
+        # print("erasing these marbles:", end=' ')
+        for coords in self.list_of_disconnected_marbles:
             ii = coords[0]
             jj = coords[1]
             # print(coords, end=' ')

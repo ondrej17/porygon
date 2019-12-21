@@ -1,12 +1,7 @@
-{
-  "ondrej": 1345,
-  "diana": 1000,
-  "player1": 999,
-  "player2": 999,
-  "player3": 999,
-  "player4": 999,
-  "player5": 999,
-  "player6": 999,
-  "player7": 999,
-  "player8": 999
-}
+player6 98
+player7 9
+player8 999
+ondrej 1345
+diana 1000
+ondrej 9
+ondrej 18

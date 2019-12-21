@@ -1,6 +1,6 @@
-import json
 import tkinter as tk
 from PIL import Image, ImageTk
+from tkinter import ttk
 
 
 class ControlButtons:
@@ -91,59 +91,67 @@ class ControlButtons:
     def click_setup(self):
         print("Setup Button was pressed")
 
+    @staticmethod
+    def save_highscore(username, achieved_score):
+        with open('../docs/highscore.txt', 'a') as file:
+            file.write("\n{} {}".format(username, achieved_score))
+
 
 class HighscoreTable(object):
-    width = 400
-    height = 200
+    width = 600
+    height = 300
 
     def __init__(self):
         # load highscore (must be in format of json file):
         data = self.load_data('../docs/highscore.txt')     # do sth with data
-        print(data)
 
         # create root Tk object and set its properties
         self.root = tk.Tk()
-        self.root.title("Highscore")
+        self.root.title("")
         self.root.geometry("{}x{}".format(self.width, self.height))
+        self.root.configure(background='#C0C0FF')
         self.root.resizable(False, False)
 
-        # create MAIN FRAME and set its properties
-        self.main_frame = tk.Frame(self.root, bg='#C0C0FF')
-        self.main_frame.pack(expand=True, fill='both')
+        label = tk.Label(self.root, text="High Scores", bg='#C0C0FF', font=("Helvetica", 22)).grid(row=0, columnspan=3)
 
-        # layout table with highscore
-        b = None
-        cells = {}
-        for i, key in enumerate(data.keys()):     # Rows
-            for j in range(2):      # Columns
-                if j == 0:
-                    b = tk.Label(self.main_frame, height=20, width=100,
-                                 text=key,
-                                 bg='#C0C0FF',
-                                 relief='flat',
-                                 borderwidth=0,
-                                 activebackground='#C0C0FF')
-                    b.grid(row=i, column=j)
-                elif j == 1:
-                    b = tk.Label(self.main_frame,  height=20, width=100,
-                                 text=data[key],
-                                 bg='#C0C0FF',
-                                 relief='flat',
-                                 borderwidth=0,
-                                 activebackground='#C0C0FF')
-                    b.grid(row=i, column=j)
+        # create treeview with 3 columns
+        cols = ('Position', 'Name', 'Score')
+        self.listBox = ttk.Treeview(self.root, columns=cols, show='headings')
 
-                cells[(i, j)] = b
+        # set column headings
+        for col in cols:
+            self.listBox.heading(col, text=col)
+
+        self.listBox.grid(row=1, column=0, columnspan=2)
+
+        self.show_score(data)
 
         # at the end of __init__
         self.root.mainloop()
+
+    def show_score(self, data):
+
+        temp_list = data
+        temp_list.sort(key=lambda e: e[1], reverse=True)
+
+        for i, (name, score) in enumerate(temp_list, start=1):
+            self.listBox.insert("", "end", values=(i, name, score))
 
     @staticmethod
     def load_data(filename):
         """
         loads data from json file self.filename
         """
-        return json.load(open(filename))
+        data = []
+        with open(filename) as file:
+            for line in file:
+                try:
+                    name = line.strip().split()[0]
+                    score = int(line.strip().split()[1])
+                    data.append([name, score])
+                except IndexError:
+                    pass
+        return data
 
     def kill_myself(self, event):
         """
