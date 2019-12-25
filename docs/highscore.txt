@@ -1,7 +1,16 @@
-player6 98
-player7 9
-player8 999
-ondrej 1345
-diana 1000
-ondrej 9
-ondrej 18
+
+ondrej6 0
+player 0
+ondrej1 177
+player 0
+ondrej1 141
+ondrej2 504
+ondrej3 70
+ondrej4 106
+ondrej5 25
+ondrej5 0
+player 25
+player 86
+ondrej6 27
+andrej 571
+andrej 560

@@ -72,6 +72,7 @@ class ControlButtons:
         self.window.show_marbles()
         # self.window.show_grid()
         self.window.score.restart_score()
+        self.window.next_marble_counter.set_number_of_marbles(MarbleCounter.default_counter)
 
     def click_help(self):
         """
@@ -215,7 +216,8 @@ class NextMarble:
 
 
 class MarbleCounter:
-    default_counter = 3
+    # default next marble number
+    default_counter = 5
 
     def __init__(self, frame, picture):
         self.frame = frame
@@ -244,10 +246,11 @@ class MarbleCounter:
     def set_number_of_marbles(self, number):
         for i in range(self.counter):
             self.marbles[i].grid_forget()
+
         self.counter = number
 
         for i in range(self.counter):
-            self.marbles[i].grid(row=0, column=1 + i)
+            self.marbles[i].grid(row=0, column=1+i)
 
     def get_counter(self):
         return self.counter
