@@ -4,7 +4,7 @@ import tkinter as tk
 from PIL import Image, ImageTk
 
 from game_window_components import ControlButtons, Score, ActMarble, MarbleCounter, NextMarble
-from game_popupwindow import PopupWindow
+from game_popupwindow import UsernamePopupWindow
 
 
 class Window:
@@ -41,12 +41,12 @@ class Window:
         self.root.resizable(False, False)
 
         # create MAIN FRAME and set its properties
-        self.main_frame = tk.Frame(self.root, bg='#C0C0FF')
+        self.main_frame = tk.Frame(self.root)
         self.main_frame.pack(expand=True, fill='both')
 
         # create playground
         self.playground = tk.Canvas(self.main_frame,
-                                    bg='#C0C0FF',
+                                    # bg='#C0C0FF',
                                     width=self.playground_width - 2 * self.border_width,
                                     height=self.playground_height - 2 * self.border_width,
                                     relief='sunken',
@@ -54,19 +54,19 @@ class Window:
 
         # create bottom toolbar
         self.bottom_toolbar = tk.Frame(self.main_frame,
-                                       bg='#C0C0FF',
+                                       # bg='#C0C0FF',
                                        width=self.bottom_toolbar_width,
                                        height=self.bottom_toolbar_height)
 
         # create right toolbar
         self.right_toolbar = tk.Frame(self.main_frame,
-                                      bg='#C0C0FF',
+                                      # bg='#C0C0FF',
                                       width=self.right_toolbar_width,
                                       height=self.right_toolbar_height)
 
         # create about frame in right bottom corner
-        self.about_frame = tk.Label(self.main_frame,
-                                    bg='#C0C0FF',
+        self.about_frame = tk.Frame(self.main_frame,
+                                    # bg='#C0C0FF',
                                     width=self.right_toolbar_width,
                                     height=self.bottom_toolbar_height)
 
@@ -79,11 +79,11 @@ class Window:
         # add information about game to about frame
         self.name_of_game = tk.Label(self.about_frame,
                                      text='Porygon',
-                                     bg='#C0C0FF',
+                                     # bg='#C0C0FF',
                                      font=("Helvetica", 16))
 
         # pack name of game and name of author to about frame
-        self.name_of_game.pack()
+        self.name_of_game.grid(row=0, column=0)
 
         # prepare pictures
         self.init_pictures()
@@ -96,7 +96,6 @@ class Window:
         # listeners for buttons action
         self.right_toolbar.restart_action = False
 
-        # TODO: add functionality to the buttons
         self.control_buttons = ControlButtons(self.right_toolbar, self)
         self.score = Score(self.right_toolbar)
 
@@ -106,7 +105,6 @@ class Window:
         self.next_marble_counter = MarbleCounter(self.bottom_toolbar, self.pictures[self.color_map[7]])
         color = random.randint(1, 6)
         self.act_marble = ActMarble(self.bottom_toolbar, self.pictures[self.color_map[color]], color)
-        # TODO: add arrow that points towards the mouse pointer
 
         # bind button1 click to fire function
         self.playground.bind('<Button-1>', self.fire_marble)
@@ -147,7 +145,7 @@ class Window:
             self.game_over_anim()
 
             # show popup windows for entering username
-            self.username = PopupWindow(self.main_frame).show()
+            self.username = UsernamePopupWindow(self.main_frame).show()
             if self.username == "":
                 self.username = 'player'
 
@@ -165,11 +163,12 @@ class Window:
             # self.show_grid()
 
         if self.you_are_playing:
-            self.playground.after(500, self.timer)
+            self.playground.after(1000, self.timer)
 
     def fire_marble(self, event):
-        # print('Marble fired towards:', event.x, event.y)
-
+        """
+        fires new marble, i.e. creates new object FiringMarble
+        """
         # create new marble (only if there is no flying marble)
         if self.playground.fire_enabled:
             self.playground.fire_enabled = False
@@ -305,7 +304,7 @@ class Window:
 class FiringMarble:
     init_x = 326.5
     init_y = 700
-    speed = 3
+    speed = 4
 
     def __init__(self, playground, dir_x, dir_y, picture, color, marbles, window):
         # this is the direction of fired marble

@@ -2,6 +2,8 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from tkinter import ttk
 
+from game_popupwindow import AboutPopupWindow
+
 
 class ControlButtons:
     def __init__(self, frame, window):
@@ -10,56 +12,53 @@ class ControlButtons:
         self.window = window
 
         # restart button
-        img = Image.open('../images/marble_green_restart.png').resize((70, 70), Image.ANTIALIAS)
+        img = Image.open('../images/marble_green_restart.png').resize((60, 60), Image.ANTIALIAS)
         self.restart_btn_image = ImageTk.PhotoImage(img)
 
-        restart_btn = tk.Button(self.frame, width=75,
+        restart_btn = tk.Button(self.frame, width=55,
                                 image=self.restart_btn_image,
-                                bg='#C0C0FF',
+                                # bg='#C0C0FF',
                                 relief='flat',
                                 command=self.click_restart,
-                                borderwidth=0,
-                                activebackground='#C0C0FF')
-        restart_btn.grid(row=0, column=0)
+                                borderwidth=0)
+        restart_btn.grid(row=0, column=0, padx=10)
 
-        # help button
-        img = Image.open('../images/marble_purple_help.png').resize((50, 50), Image.ANTIALIAS)
-        self.help_btn_image = ImageTk.PhotoImage(img)
+        # about button
+        img = Image.open('../images/marble_purple_about.png').resize((50, 50), Image.ANTIALIAS)
+        self.about_btn_image = ImageTk.PhotoImage(img)
 
-        help_btn = tk.Button(self.frame, width=75,
-                             image=self.help_btn_image,
-                             bg='#C0C0FF',
-                             relief='flat',
-                             command=self.click_help,
-                             borderwidth=0,
-                             activebackground='#C0C0FF')
-        help_btn.grid(row=1, column=1)
+        about_btn = tk.Button(self.frame, width=55,
+                              image=self.about_btn_image,
+                              # bg='#C0C0FF',
+                              relief='flat',
+                              command=self.click_about,
+                              borderwidth=0)
+        about_btn.grid(row=1, column=1, padx=10)
 
         # high-score button
-        img = Image.open('../images/marble_red_highscore.png').resize((80, 80), Image.ANTIALIAS)
+        img = Image.open('../images/marble_red_highscore.png').resize((55, 55), Image.ANTIALIAS)
         self.highscore_btn_image = ImageTk.PhotoImage(img)
 
-        highscore_btn = tk.Button(self.frame, width=75,
+        highscore_btn = tk.Button(self.frame, width=55,
                                   image=self.highscore_btn_image,
-                                  bg='#C0C0FF',
+                                  # bg='#C0C0FF',
                                   relief='flat',
                                   command=self.click_highscore,
-                                  borderwidth=0,
-                                  activebackground='#C0C0FF')
-        highscore_btn.grid(row=2, column=0)
+                                  borderwidth=0)
+        highscore_btn.grid(row=2, column=0, padx=10)
 
-        # setup button
-        img = Image.open('../images/marble_yellow_setup.png').resize((70, 70), Image.ANTIALIAS)
-        self.setup_btn_image = ImageTk.PhotoImage(img)
-
-        setup_btn = tk.Button(self.frame, width=75,
-                              image=self.setup_btn_image,
-                              bg='#C0C0FF',
-                              relief='flat',
-                              command=self.click_setup,
-                              borderwidth=0,
-                              activebackground='#C0C0FF')
-        setup_btn.grid(row=3, column=1)
+        # # setup button
+        # img = Image.open('../images/marble_yellow_setup.png').resize((70, 70), Image.ANTIALIAS)
+        # self.setup_btn_image = ImageTk.PhotoImage(img)
+        #
+        # setup_btn = tk.Button(self.frame, width=75,
+        #                       image=self.setup_btn_image,
+        #                       bg='#C0C0FF',
+        #                       relief='flat',
+        #                       command=self.click_setup,
+        #                       borderwidth=0,
+        #                       activebackground='#C0C0FF')
+        # setup_btn.grid(row=3, column=1)
 
     def click_restart(self):
         """
@@ -74,11 +73,12 @@ class ControlButtons:
         self.window.score.restart_score()
         self.window.next_marble_counter.set_number_of_marbles(MarbleCounter.default_counter)
 
-    def click_help(self):
+    def click_about(self):
         """
         when help is pressed, nothing happens so far
         """
-        print("Help Button was pressed")
+        print("About Button was pressed")
+        result = AboutPopupWindow(self.frame)
 
     def click_highscore(self):
         """
@@ -104,16 +104,16 @@ class HighscoreTable(object):
 
     def __init__(self):
         # load highscore (must be in format of json file):
-        data = self.load_data('../docs/highscore.txt')     # do sth with data
+        data = self.load_data('../docs/highscore.txt')  # do sth with data
 
         # create root Tk object and set its properties
         self.root = tk.Tk()
         self.root.title("")
         self.root.geometry("{}x{}".format(self.width, self.height))
-        self.root.configure(background='#C0C0FF')
+        # self.root.configure(background='#C0C0FF')
         self.root.resizable(False, False)
 
-        label = tk.Label(self.root, text="High Scores", bg='#C0C0FF', font=("Helvetica", 22)).grid(row=0, columnspan=3)
+        label = tk.Label(self.root, text="High Scores", font=("Helvetica", 22)).grid(row=0, columnspan=3)
 
         # create treeview with 3 columns
         cols = ('Position', 'Name', 'Score')
@@ -165,10 +165,10 @@ class Score:
     def __init__(self, frame):
         self.score = 0
 
-        self.score_label = tk.Label(frame, text='Score', font='Arial 15', bg='#C0C0FF')
-        self.score_label.grid(row=5, column=0, columnspan=2)
+        self.score_label = tk.Label(frame, text='Score', font='Arial 15')
+        self.score_label.grid(row=5, column=0, columnspan=2, pady=(100, 0))
 
-        self.score_value = tk.Label(frame, text="{}".format(self.score), font='Arial 15', bg='#C0C0FF')
+        self.score_value = tk.Label(frame, text="{}".format(self.score), font='Arial 15')
         self.score_value.grid(row=6, column=0, columnspan=2)
 
     def add_to_score(self, score):
@@ -197,10 +197,9 @@ class NextMarble:
         # create image in frame
         self.next_marble_icon = tk.Label(self.frame, height=100, width=77,
                                          image=self.next_marble,
-                                         bg='#C0C0FF',
+                                         # bg='#C0C0FF',
                                          relief='flat',
-                                         borderwidth=0,
-                                         activebackground='#C0C0FF')
+                                         borderwidth=0)
         self.next_marble_icon.grid(row=0, column=0)
 
     def update_color(self, picture, color):
@@ -225,7 +224,7 @@ class MarbleCounter:
         self.picture = picture
         self.marbles = []
         self.inner_frame = tk.Frame(self.frame,
-                                    bg='#C0C0FF',
+                                    # bg='#C0C0FF',
                                     width=231,
                                     height=100)
         self.inner_frame.grid(row=0, column=1)
@@ -237,10 +236,9 @@ class MarbleCounter:
         for i in range(self.counter):
             self.marbles.append(tk.Label(self.inner_frame, height=100, width=37,
                                          image=self.picture,
-                                         bg='#C0C0FF',
+                                         # bg='#C0C0FF',
                                          relief='flat',
-                                         borderwidth=0,
-                                         activebackground='#C0C0FF'))
+                                         borderwidth=0))
             self.marbles[i].grid(row=0, column=1 + i)
 
     def set_number_of_marbles(self, number):
@@ -250,7 +248,7 @@ class MarbleCounter:
         self.counter = number
 
         for i in range(self.counter):
-            self.marbles[i].grid(row=0, column=1+i)
+            self.marbles[i].grid(row=0, column=1 + i)
 
     def get_counter(self):
         return self.counter
@@ -267,10 +265,9 @@ class ActMarble:
         # create image in frame
         self.act_marble_icon = tk.Label(self.frame, height=100, width=37,
                                         image=self.act_marble,
-                                        bg='#C0C0FF',
+                                        #bg='#C0C0FF',
                                         relief='flat',
-                                        borderwidth=0,
-                                        activebackground='#C0C0FF')
+                                        borderwidth=0)
         self.act_marble_icon.grid(row=0, column=2)
 
     def update_color(self, picture, color):

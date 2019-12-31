@@ -1,13 +1,13 @@
 import tkinter as tk
 
 
-class PopupWindow:
+class UsernamePopupWindow:
 
     def __init__(self, parent):
-        self.toplevel = tk.Toplevel(parent, bg='#C0C0FF', height=300, width=300)
+        self.toplevel = tk.Toplevel(parent, height=300, width=300)
         self.username = tk.StringVar()
 
-        label = tk.Label(self.toplevel, text="Enter username:", bg='#C0C0FF')
+        label = tk.Label(self.toplevel, text="Enter username:")
         entry_field = tk.Entry(self.toplevel, textvariable=self.username)
         button = tk.Button(self.toplevel, text="Submit", command=self.toplevel.destroy)
 
@@ -20,5 +20,17 @@ class PopupWindow:
         self.toplevel.wait_window()
         value = self.username.get()
         return value
+
+
+class AboutPopupWindow:
+
+    def __init__(self, parent):
+        self.toplevel = tk.Toplevel(parent, height=300, width=300)
+        self.username = tk.StringVar()
+
+        label = tk.Label(self.toplevel, text="Porygon Game")
+        # TODO: add text to about window
+
+        label.pack(padx=10, pady=10)
 
 
