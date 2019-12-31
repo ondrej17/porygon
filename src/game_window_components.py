@@ -15,37 +15,37 @@ class ControlButtons:
         img = Image.open('../images/marble_green_restart.png').resize((60, 60), Image.ANTIALIAS)
         self.restart_btn_image = ImageTk.PhotoImage(img)
 
-        restart_btn = tk.Button(self.frame, width=55,
+        restart_btn = tk.Button(self.frame, width=65,
                                 image=self.restart_btn_image,
                                 # bg='#C0C0FF',
                                 relief='flat',
                                 command=self.click_restart,
                                 borderwidth=0)
-        restart_btn.grid(row=0, column=0, padx=10)
+        restart_btn.grid(row=0, column=0, padx=(10, 0))
 
         # about button
         img = Image.open('../images/marble_purple_about.png').resize((50, 50), Image.ANTIALIAS)
         self.about_btn_image = ImageTk.PhotoImage(img)
 
-        about_btn = tk.Button(self.frame, width=55,
+        about_btn = tk.Button(self.frame, width=65,
                               image=self.about_btn_image,
                               # bg='#C0C0FF',
                               relief='flat',
                               command=self.click_about,
                               borderwidth=0)
-        about_btn.grid(row=1, column=1, padx=10)
+        about_btn.grid(row=1, column=1, padx=(0, 10))
 
         # high-score button
-        img = Image.open('../images/marble_red_highscore.png').resize((55, 55), Image.ANTIALIAS)
+        img = Image.open('../images/marble_red_highscore.png').resize((65, 65), Image.ANTIALIAS)
         self.highscore_btn_image = ImageTk.PhotoImage(img)
 
-        highscore_btn = tk.Button(self.frame, width=55,
+        highscore_btn = tk.Button(self.frame, width=65,
                                   image=self.highscore_btn_image,
                                   # bg='#C0C0FF',
                                   relief='flat',
                                   command=self.click_highscore,
                                   borderwidth=0)
-        highscore_btn.grid(row=2, column=0, padx=10)
+        highscore_btn.grid(row=2, column=0, padx=(10, 0))
 
         # # setup button
         # img = Image.open('../images/marble_yellow_setup.png').resize((70, 70), Image.ANTIALIAS)
@@ -173,7 +173,7 @@ class Score:
 
     def add_to_score(self, score):
         self.score += score
-        print("Score =", self.score)
+        # print("Score =", self.score)
         self.score_value.config(text="{}".format(self.score))
 
     def get_score(self):
@@ -181,7 +181,7 @@ class Score:
 
     def restart_score(self):
         self.score = 0
-        print("Score =", self.score)
+        # print("Score =", self.score)
         self.score_value.config(text="{}".format(self.score))
 
 

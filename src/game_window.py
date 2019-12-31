@@ -363,13 +363,13 @@ class FiringMarble:
 
             # print("I touched something")
             # print("ROW:COLUMN =", self.row, self.column)
-            print("FI:", self.fi*180/math.pi)
+            # print("FI:", self.fi*180/math.pi)
 
-            print("Where to fall:", self.where_to_fall)
+            # print("Where to fall:", self.where_to_fall)
             x_targ, y_targ = self.middle_of_cell(self.where_to_fall)
             self.fi = math.atan(abs((y_targ - self.y) / (x_targ - self.x)))
             self.speed = 1
-            print("FI:", self.fi*180/math.pi)
+            # print("FI:", self.fi*180/math.pi)
 
             if y_targ < self.y and x_targ < self.x:
                 self.dy = -math.sin(self.fi)
@@ -463,7 +463,6 @@ class FiringMarble:
             self.window.show_marbles()
             # self.window.show_grid()
 
-            # TODO: add erasing marbles that are not connected directly to top mantinel
             self.list_of_disconnected_marbles = set()   # contains tuples (row, column) of marbles
             self.find_disconnected_marbles()            # finds disconnected marbles
 
@@ -513,7 +512,7 @@ class FiringMarble:
 
         # check for marble in my way anyway
         if self.marble_in_my_way():
-            print("Marble in my way. I am at the: {}:{}".format(self.row, self.column))
+            # print("Marble in my way. I am at the: {}:{}".format(self.row, self.column))
             return True
 
         # otherwise I didn't touch anything
@@ -566,35 +565,35 @@ class FiringMarble:
     def marble_in_my_way(self):
 
         # I have: fi, row, column, marbles
-        print("In marble_in_my_way:", self.row, self.column)
+        # print("In marble_in_my_way:", self.row, self.column)
 
         # I am at the left mantinel
         if self.column == 0 and self.dx < 0:
-            print("I am at the left mantinel")
+            # print("I am at the left mantinel")
             if self.marbles[self.row-1][self.column] != 7:
                 self.where_to_fall = (self.row, self.column)
                 return True
 
         # I am at the right mantinel
         elif self.column == len(self.marbles[0])-1 and self.dx > 0:
-            print("I am at the right mantinel")
+            # print("I am at the right mantinel")
             if self.marbles[self.row-1][self.column] != 7:
                 self.where_to_fall = (self.row, self.column)
                 return True
 
         # I am at the top mantinel
         elif self.row == 0:
-            print("I am at the top mantinel")
+            # print("I am at the top mantinel")
             self.where_to_fall = (self.row, self.column)
             return True
 
         # I am somewhere inside
         elif self.row % 2 == 0:  # starts on the left mantinel
-            print("row % 2 = 0")
+            # print("row % 2 = 0")
 
             # to the right, 0 < fi < pi/6 - ok
             if 0 < self.fi < math.pi / 6 and self.dx > 0:
-                print("to the right, 0 < fi < pi/6")
+                # print("to the right, 0 < fi < pi/6")
                 try:
                     if self.marbles[self.row][self.column + 1] != 7:
 
@@ -616,7 +615,7 @@ class FiringMarble:
 
             # to the right: pi/6 < fi < pi/3
             elif math.pi / 6 < self.fi <= math.pi / 3 and self.dx > 0:
-                print("to the right: pi/6 < fi < pi/3")
+                # print("to the right: pi/6 < fi < pi/3")
                 try:
                     if self.marbles[self.row - 1][self.column] != 7:
                         if self.marbles[self.row][self.column + 1] == 7:
@@ -633,7 +632,7 @@ class FiringMarble:
 
             # to the right: pi/3 < fi < pi/2
             elif math.pi / 3 < self.fi <= math.pi / 2 and self.dx > 0:
-                print("to the right: pi/3 < fi < pi/2")
+                # print("to the right: pi/3 < fi < pi/2")
                 try:
                     if self.marbles[self.row - 1][self.column] != 7:
                         if self.marbles[self.row - 1][self.column - 1] == 7:
@@ -649,7 +648,7 @@ class FiringMarble:
 
             # to the left, 0 < fi < pi/6 - ok
             if 0 < self.fi < math.pi / 6 and self.dx < 0:
-                print("to the left, 0 < fi < pi/6")
+                # print("to the left, 0 < fi < pi/6")
                 try:
                     if self.marbles[self.row][self.column - 1] != 7:
                         if self.marbles[self.row - 1][self.column - 1] == 7:
@@ -670,7 +669,7 @@ class FiringMarble:
 
             # to the left: pi/6 < fi < pi/3
             elif math.pi / 6 < self.fi <= math.pi / 3 and self.dx < 0:
-                print("to the left: pi/6 < fi < pi/3")
+                # print("to the left: pi/6 < fi < pi/3")
                 try:
                     if self.marbles[self.row - 1][self.column - 1] != 7:
                         if self.marbles[self.row][self.column - 1] == 7:
@@ -686,7 +685,7 @@ class FiringMarble:
 
             # to the left: pi/3 < fi < pi/2
             elif math.pi / 3 < self.fi <= math.pi / 2 and self.dx < 0:
-                print("to the left: pi/3 < fi < pi/2")
+                # print("to the left: pi/3 < fi < pi/2")
                 try:
                     if self.marbles[self.row - 1][self.column - 1] != 7:
                         if self.marbles[self.row - 1][self.column] == 7:
@@ -701,11 +700,11 @@ class FiringMarble:
                     print("IndexError")
 
         elif self.row % 2 == 1:  # starts 20 pixel away from the right mantinel
-            print("row % 2 = 1")
+            # print("row % 2 = 1")
 
             # to the right, 0 < fi < pi/6
             if 0 < self.fi < math.pi / 6 and self.dx > 0:
-                print("to the right, 0 < fi < pi/6")
+                # print("to the right, 0 < fi < pi/6")
                 try:
                     if self.marbles[self.row][self.column + 1] != 7:
                         if self.marbles[self.row - 1][self.column + 1] == 7:
@@ -726,7 +725,7 @@ class FiringMarble:
 
             # to the right: pi/6 < fi < pi/3
             elif math.pi / 6 < self.fi <= math.pi / 3 and self.dx > 0:
-                print("to the right: pi/6 < fi < pi/3")
+                # print("to the right: pi/6 < fi < pi/3")
                 try:
                     if self.marbles[self.row - 1][self.column + 1] != 7:
                         if self.marbles[self.row][self.column + 1] == 7:
@@ -742,7 +741,7 @@ class FiringMarble:
 
             # to the right: pi/3 < fi < pi/2
             elif math.pi / 3 < self.fi <= math.pi / 2 and self.dx > 0:
-                print("to the right: pi/3 < fi < pi/2")
+                # print("to the right: pi/3 < fi < pi/2")
                 try:
                     if self.marbles[self.row - 1][self.column + 1] != 7:
                         if self.marbles[self.row - 1][self.column] == 7:
@@ -758,7 +757,7 @@ class FiringMarble:
 
             # to the left, 0 < fi < pi/6 - ok
             if 0 < self.fi < math.pi / 6 and self.dx < 0:
-                print("to the left, 0 < fi < pi/6")
+                # print("to the left, 0 < fi < pi/6")
                 try:
                     if self.marbles[self.row][self.column - 1] != 7:
                         if self.marbles[self.row - 1][self.column] == 7:
@@ -779,7 +778,7 @@ class FiringMarble:
 
             # to the left: pi/6 < fi < pi/3
             elif math.pi / 6 < self.fi <= math.pi / 3 and self.dx < 0:
-                print("to the left: pi/6 < fi < pi/3")
+                # print("to the left: pi/6 < fi < pi/3")
                 try:
                     if self.marbles[self.row - 1][self.column] != 7:
                         if self.marbles[self.row][self.column - 1] == 7:
@@ -795,7 +794,7 @@ class FiringMarble:
 
             # to the left: pi/3 < fi < pi/2
             elif math.pi / 3 < self.fi <= math.pi / 2 and self.dx < 0:
-                print("to the left: pi/3 < fi < pi/2")
+                # print("to the left: pi/3 < fi < pi/2")
                 try:
                     if self.marbles[self.row - 1][self.column] != 7:
                         if self.marbles[self.row - 1][self.column + 1] == 7:
@@ -816,7 +815,6 @@ class FiringMarble:
         # go through my neighbours and destroy them if they have same color and call this function again
 
         # print("starting to finding same color neighbours:", my_color)
-        # TODO: check coordination of all neighbours
         # set correct neighbours
         if row == 0 and (column != 0 and column != len(self.marbles[0])-1):
             neighbours = [(row, column + 1), (row, column - 1), (row + 1, column - 1), (row + 1, column)]
@@ -845,8 +843,8 @@ class FiringMarble:
                 neighbours = [(row, column + 1), (row - 1, column + 1), (row - 1, column),
                               (row, column - 1), (row + 1, column), (row + 1, column + 1)]
 
-        print("\nYou are at [{}:{}]".format(row, column))
-        print("These are your neighbours:", neighbours)
+        # print("\nYou are at [{}:{}]".format(row, column))
+        # print("These are your neighbours:", neighbours)
 
         # check all neighbours and if one has same color as I have, remember it
         coords_with_same_color = []
@@ -887,10 +885,55 @@ class FiringMarble:
 
     def find_disconnected_marbles(self):
         """
-        finds marbles that are not connected to to top mantinel
+        finds marbles that are not connected to to top mantinel and are alone
         how ?
         """
-        pass
+        for row in range(1, len(self.marbles)-1):
+            for column in range(len(self.marbles[0])):
+                if self.marbles[row][column] != 7:
+
+                    # set correct neighbours
+                    if row == 0 and (column != 0 and column != len(self.marbles[0])-1):
+                        neighbours = [(row, column + 1), (row, column - 1), (row + 1, column - 1), (row + 1, column)]
+                    elif row == 0 and column == 0:
+                        neighbours = [(row, column + 1), (row + 1, column)]
+                    elif row == 0 and column == len(self.marbles[0])-1:
+                        neighbours = [(row, column - 1), (row + 1, column - 1), (row + 1, column)]
+
+                    elif column == 0 and row % 2 == 0:
+                        neighbours = [(row, column + 1), (row - 1, column), (row + 1, column)]
+                    elif column == 0 and row % 2 == 1:
+                        neighbours = [(row, column + 1), (row - 1, column + 1), (row - 1, column), (row + 1, column),
+                                      (row + 1, column + 1)]
+
+                    elif column == len(self.marbles[0])-1 and row % 2 == 0:
+                        neighbours = [(row - 1, column), (row - 1, column - 1), (row, column - 1), (row + 1, column - 1),
+                                      (row + 1, column)]
+                    elif column == len(self.marbles[0])-1 and row % 2 == 1:
+                        neighbours = [(row - 1, column), (row, column - 1), (row + 1, column)]
+
+                    else:
+                        if row % 2 == 0:
+                            neighbours = [(row, column + 1), (row - 1, column), (row - 1, column - 1),
+                                          (row, column - 1), (row + 1, column - 1), (row + 1, column)]
+                        else:
+                            neighbours = [(row, column + 1), (row - 1, column + 1), (row - 1, column),
+                                          (row, column - 1), (row + 1, column), (row + 1, column + 1)]
+
+                    # check these neighbours
+
+                    is_alone = True
+                    for coords in neighbours:
+                        ii = coords[0]
+                        jj = coords[1]
+                        #print("Looking at:", ii, jj)
+
+                        if self.marbles[ii][jj] != 7:
+                            #print("is not 7")
+                            is_alone = False
+
+                    if is_alone:
+                        self.list_of_disconnected_marbles.add((row, column))
 
     def destroy_disconnected(self):
         """

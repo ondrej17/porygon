@@ -28,8 +28,12 @@ class AboutPopupWindow:
         self.toplevel = tk.Toplevel(parent, height=300, width=300)
         self.username = tk.StringVar()
 
-        label = tk.Label(self.toplevel, text="Porygon Game")
-        # TODO: add text to about window
+        label = tk.Label(self.toplevel,
+                         # TODO: add text to about window
+                         text="Porygon Game\n"
+                              "Porygon Game\n"
+                              "Porygon Game\n"
+                              "Porygon Game")
 
         label.pack(padx=10, pady=10)
 
