@@ -215,7 +215,6 @@ class NextMarble:
 
 
 class MarbleCounter:
-    # default next marble number
     default_counter = 5
 
     def __init__(self, frame, picture):
@@ -244,7 +243,6 @@ class MarbleCounter:
     def set_number_of_marbles(self, number):
         for i in range(self.counter):
             self.marbles[i].grid_forget()
-
         self.counter = number
 
         for i in range(self.counter):
