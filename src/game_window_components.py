@@ -6,6 +6,8 @@ from game_popupwindow import AboutPopupWindow
 
 
 class ControlButtons:
+    color_background = '#047E97'
+
     def __init__(self, frame, window):
         # width of buttons must be together equal to right_toolbar_width from Window
         self.frame = frame
@@ -17,7 +19,7 @@ class ControlButtons:
 
         restart_btn = tk.Button(self.frame, width=65,
                                 image=self.restart_btn_image,
-                                # bg='#C0C0FF',
+                                bg=self.color_background,
                                 relief='flat',
                                 command=self.click_restart,
                                 borderwidth=0)
@@ -29,7 +31,7 @@ class ControlButtons:
 
         about_btn = tk.Button(self.frame, width=65,
                               image=self.about_btn_image,
-                              # bg='#C0C0FF',
+                              bg=self.color_background,
                               relief='flat',
                               command=self.click_about,
                               borderwidth=0)
@@ -41,7 +43,7 @@ class ControlButtons:
 
         highscore_btn = tk.Button(self.frame, width=65,
                                   image=self.highscore_btn_image,
-                                  # bg='#C0C0FF',
+                                  bg=self.color_background,
                                   relief='flat',
                                   command=self.click_highscore,
                                   borderwidth=0)
@@ -101,6 +103,7 @@ class ControlButtons:
 class HighscoreTable(object):
     width = 600
     height = 300
+    color_background = '#04AACE'
 
     def __init__(self):
         # load highscore (must be in format of json file):
@@ -110,7 +113,7 @@ class HighscoreTable(object):
         self.root = tk.Tk()
         self.root.title("")
         self.root.geometry("{}x{}".format(self.width, self.height))
-        # self.root.configure(background='#C0C0FF')
+        self.root.configure(background=self.color_background)
         self.root.resizable(False, False)
 
         label = tk.Label(self.root, text="High Scores", font=("Helvetica", 22)).grid(row=0, columnspan=3)
@@ -162,13 +165,15 @@ class HighscoreTable(object):
 
 
 class Score:
+    color_background = '#047E97'
+
     def __init__(self, frame):
         self.score = 0
 
-        self.score_label = tk.Label(frame, text='Score', font='Arial 15')
+        self.score_label = tk.Label(frame, text='Score', font='Arial 15', bg=self.color_background)
         self.score_label.grid(row=5, column=0, columnspan=2, pady=(100, 0))
 
-        self.score_value = tk.Label(frame, text="{}".format(self.score), font='Arial 15')
+        self.score_value = tk.Label(frame, text="{}".format(self.score), font='Arial 15', bg=self.color_background)
         self.score_value.grid(row=6, column=0, columnspan=2)
 
     def add_to_score(self, score):
@@ -186,6 +191,7 @@ class Score:
 
 
 class NextMarble:
+    color_background = '#047E97'
 
     def __init__(self, frame, picture, color):
         self.frame = frame
@@ -197,7 +203,7 @@ class NextMarble:
         # create image in frame
         self.next_marble_icon = tk.Label(self.frame, height=100, width=77,
                                          image=self.next_marble,
-                                         # bg='#C0C0FF',
+                                         bg=self.color_background,
                                          relief='flat',
                                          borderwidth=0)
         self.next_marble_icon.grid(row=0, column=0)
@@ -216,6 +222,7 @@ class NextMarble:
 
 class MarbleCounter:
     default_counter = 5
+    color_background = '#047E97'
 
     def __init__(self, frame, picture):
         self.frame = frame
@@ -223,7 +230,7 @@ class MarbleCounter:
         self.picture = picture
         self.marbles = []
         self.inner_frame = tk.Frame(self.frame,
-                                    # bg='#C0C0FF',
+                                    bg=self.color_background,
                                     width=231,
                                     height=100)
         self.inner_frame.grid(row=0, column=1)
@@ -235,7 +242,7 @@ class MarbleCounter:
         for i in range(self.counter):
             self.marbles.append(tk.Label(self.inner_frame, height=100, width=37,
                                          image=self.picture,
-                                         # bg='#C0C0FF',
+                                         bg=self.color_background,
                                          relief='flat',
                                          borderwidth=0))
             self.marbles[i].grid(row=0, column=1 + i)
@@ -253,6 +260,8 @@ class MarbleCounter:
 
 
 class ActMarble:
+    color_background = '#047E97'
+
     def __init__(self, frame, picture, color):
         self.frame = frame
         self.color = color
@@ -263,7 +272,7 @@ class ActMarble:
         # create image in frame
         self.act_marble_icon = tk.Label(self.frame, height=100, width=37,
                                         image=self.act_marble,
-                                        #bg='#C0C0FF',
+                                        bg=self.color_background,
                                         relief='flat',
                                         borderwidth=0)
         self.act_marble_icon.grid(row=0, column=2)

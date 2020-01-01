@@ -15,6 +15,7 @@ class Window:
     right_toolbar_width = 150
     right_toolbar_height = 660
     border_width = 2
+    color_background = '#047E97'
 
     def __init__(self):
         self.mouse_y = 0
@@ -41,32 +42,32 @@ class Window:
         self.root.resizable(False, False)
 
         # create MAIN FRAME and set its properties
-        self.main_frame = tk.Frame(self.root)
+        self.main_frame = tk.Frame(self.root, bg=self.color_background)
         self.main_frame.pack(expand=True, fill='both')
 
         # create playground
         self.playground = tk.Canvas(self.main_frame,
-                                    # bg='#C0C0FF',
+                                    bg=self.color_background,
                                     width=self.playground_width - 2 * self.border_width,
                                     height=self.playground_height - 2 * self.border_width,
                                     relief='sunken',
-                                    borderwidth=self.border_width)
+                                    highlightthickness=self.border_width, highlightbackground="black")
 
         # create bottom toolbar
         self.bottom_toolbar = tk.Frame(self.main_frame,
-                                       # bg='#C0C0FF',
+                                       bg=self.color_background,
                                        width=self.bottom_toolbar_width,
                                        height=self.bottom_toolbar_height)
 
         # create right toolbar
         self.right_toolbar = tk.Frame(self.main_frame,
-                                      # bg='#C0C0FF',
+                                      bg=self.color_background,
                                       width=self.right_toolbar_width,
                                       height=self.right_toolbar_height)
 
         # create about frame in right bottom corner
         self.about_frame = tk.Frame(self.main_frame,
-                                    # bg='#C0C0FF',
+                                    bg=self.color_background,
                                     width=self.right_toolbar_width,
                                     height=self.bottom_toolbar_height)
 
@@ -79,7 +80,7 @@ class Window:
         # add information about game to about frame
         self.name_of_game = tk.Label(self.about_frame,
                                      text='Porygon',
-                                     # bg='#C0C0FF',
+                                     bg=self.color_background,
                                      font=("Helvetica", 16))
 
         # pack name of game and name of author to about frame
@@ -87,6 +88,10 @@ class Window:
 
         # prepare pictures
         self.init_pictures()
+
+        # set background for playground
+        self.background_image = None
+        self.set_background()
 
         # prepare the marbles and place them in the playground
         self.init_marbles()
@@ -140,6 +145,9 @@ class Window:
 
             # delete all marbles
             self.playground.delete('all')
+
+            # set background back
+            self.set_background()
 
             # starts animation
             self.game_over_anim()
@@ -217,6 +225,7 @@ class Window:
         shows marbles in playground
         """
         self.playground.delete('all')
+        self.set_background()
         x, y = self.border_width + 20, self.border_width + 20
         for i in range(len(self.marbles)):
             for j in range(len(self.marbles[i])):
@@ -299,6 +308,17 @@ class Window:
             j += 1
 
         self.playground.fire_enabled = True
+
+    def set_background(self):
+        """
+        sets background for playground
+        """
+        name_of_picture = "../images/background.png"
+        self.background_image = ImageTk.PhotoImage(Image.open(name_of_picture).resize((self.playground_width,
+                                                                                       self.playground_height)))
+        self.playground.create_image(self.border_width, self.border_width,
+                                     image=self.background_image,
+                                     anchor='nw')
 
 
 class FiringMarble:
@@ -467,6 +487,10 @@ class FiringMarble:
             self.find_disconnected_marbles()            # finds disconnected marbles
 
             if len(self.list_of_disconnected_marbles) > 0:
+                # add 10 points to score for each single marble
+                print("Add to score:", 10*len(self.list_of_disconnected_marbles))
+                self.window.score.add_to_score(10*len(self.list_of_disconnected_marbles))
+
                 self.destroy_disconnected()             # erases disconnected marbles
 
             # reset list of disconnected marbles
@@ -926,10 +950,10 @@ class FiringMarble:
                     for coords in neighbours:
                         ii = coords[0]
                         jj = coords[1]
-                        #print("Looking at:", ii, jj)
+                        # print("Looking at:", ii, jj)
 
                         if self.marbles[ii][jj] != 7:
-                            #print("is not 7")
+                            # print("is not 7")
                             is_alone = False
 
                     if is_alone:
