@@ -51,7 +51,8 @@ class Window:
                                     width=self.playground_width - 2 * self.border_width,
                                     height=self.playground_height - 2 * self.border_width,
                                     relief='sunken',
-                                    highlightthickness=self.border_width, highlightbackground="black")
+                                    highlightthickness=self.border_width,
+                                    highlightbackground="black")
 
         # create bottom toolbar
         self.bottom_toolbar = tk.Frame(self.main_frame,
@@ -115,6 +116,7 @@ class Window:
         self.playground.bind('<Button-1>', self.fire_marble)
         self.you_are_playing = True
         self.is_game_over = False
+        self.you_won = True
         self.playground.fire_enabled = True
         self.seconds = 0
         self.achieved_score = 0
@@ -132,6 +134,44 @@ class Window:
         # else:
         #     print('tak:', self.seconds)
         self.seconds += 1
+
+        # check whether you won (all marbles are grey)
+        self.you_won = True
+        for row in self.marbles:
+            for marble in row:
+                if marble != 7:
+                    self.you_won = False
+                    break
+
+        if self.you_won:
+            self.you_won = True
+
+            # delete all marbles
+            self.playground.delete('all')
+
+            # set background back
+            self.set_background()
+
+            # starts animation
+            self.winner_anim()
+
+            # show popup windows for entering username
+            self.username = UsernamePopupWindow(self.main_frame).show()
+            if self.username == "":
+                self.username = 'player'
+
+            # find actual score and save it
+            self.achieved_score = self.score.get_score()
+            # print("Achieved Score:", self.achieved_score)
+            self.control_buttons.save_highscore(self.username, self.achieved_score)
+
+            # restart score
+            self.score.restart_score()
+
+            # initialization of new set of marbles
+            self.marbles = self.init_marbles()
+            self.show_marbles()
+            # self.show_grid()
 
         # if there is marble in 13th row, game over
         for grey_ball in self.marbles[16]:
@@ -287,10 +327,10 @@ class Window:
 
     def game_over_anim(self):
         """
-        show game-over animation at the end of game, it lasts cycles*len(array)*30 ms = 5*20*30 ms = 3 s
+        show game-over animation at the end of game, it lasts cycles*len(array)*30 ms = 4*20*30 ms = 3 s
         """
         self.playground.fire_enabled = False
-        cycles = 5
+        cycles = 4
         array = []
         gif = Image.open('../images/game_over.gif')
         for i in range(gif.n_frames):
@@ -305,6 +345,30 @@ class Window:
             i = (i + 1) % len(array)
             self.playground.update()
             self.playground.after(30)
+            j += 1
+
+        self.playground.fire_enabled = True
+
+    def winner_anim(self):
+        """
+        show game-over animation at the end of game, it lasts cycles*len(array)*30 ms = 4*20*30 ms = 3 s
+        """
+        self.playground.fire_enabled = False
+        cycles = 3
+        array = []
+        gif = Image.open('../images/winner.gif')
+        for i in range(gif.n_frames):
+            gif.seek(i)
+            array.append(ImageTk.PhotoImage(gif.resize((self.playground_width, self.playground_height))))
+
+        tk_id = self.playground.create_image(self.border_width+self.playground_width//2,
+                                             self.border_width+self.playground_height//2)
+        i, j = 0, 0
+        while j < cycles*len(array):
+            self.playground.itemconfig(tk_id, image=array[i])
+            i = (i + 1) % len(array)
+            self.playground.update()
+            self.playground.after(100)
             j += 1
 
         self.playground.fire_enabled = True
@@ -422,7 +486,7 @@ class FiringMarble:
         if self.me_in_middle:
             # add the marble to array of marbles at the right position
             self.marbles[self.where_to_fall[0]][self.where_to_fall[1]] = self.color
-            print("Where to fall:", self.where_to_fall)
+            # print("Where to fall:", self.where_to_fall)
 
             # print actual marbles
             # for row in self.marbles:
@@ -459,7 +523,7 @@ class FiringMarble:
 
             # add the number of erased marbles to actual score
             if self.neighb_with_same_color >= 3:
-                print("Add to score:", self.neighb_with_same_color**2)
+                # print("Add to score:", self.neighb_with_same_color**2)
                 self.window.score.add_to_score(self.neighb_with_same_color**2)
 
             # reset counter for neighbours with same color
@@ -488,7 +552,7 @@ class FiringMarble:
 
             if len(self.list_of_disconnected_marbles) > 0:
                 # add 10 points to score for each single marble
-                print("Add to score:", 10*len(self.list_of_disconnected_marbles))
+                # print("Add to score:", 10*len(self.list_of_disconnected_marbles))
                 self.window.score.add_to_score(10*len(self.list_of_disconnected_marbles))
 
                 self.destroy_disconnected()             # erases disconnected marbles
@@ -931,8 +995,8 @@ class FiringMarble:
                                       (row + 1, column + 1)]
 
                     elif column == len(self.marbles[0])-1 and row % 2 == 0:
-                        neighbours = [(row - 1, column), (row - 1, column - 1), (row, column - 1), (row + 1, column - 1),
-                                      (row + 1, column)]
+                        neighbours = [(row - 1, column), (row - 1, column - 1), (row, column - 1),
+                                      (row + 1, column - 1), (row + 1, column)]
                     elif column == len(self.marbles[0])-1 and row % 2 == 1:
                         neighbours = [(row - 1, column), (row, column - 1), (row + 1, column)]
 

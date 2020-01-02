@@ -22,7 +22,8 @@ class ControlButtons:
                                 bg=self.color_background,
                                 relief='flat',
                                 command=self.click_restart,
-                                borderwidth=0)
+                                borderwidth=0,
+                                activebackground=self.color_background)
         restart_btn.grid(row=0, column=0, padx=(10, 0))
 
         # about button
@@ -34,7 +35,8 @@ class ControlButtons:
                               bg=self.color_background,
                               relief='flat',
                               command=self.click_about,
-                              borderwidth=0)
+                              borderwidth=0,
+                              activebackground=self.color_background)
         about_btn.grid(row=1, column=1, padx=(0, 10))
 
         # high-score button
@@ -46,7 +48,8 @@ class ControlButtons:
                                   bg=self.color_background,
                                   relief='flat',
                                   command=self.click_highscore,
-                                  borderwidth=0)
+                                  borderwidth=0,
+                                  activebackground=self.color_background)
         highscore_btn.grid(row=2, column=0, padx=(10, 0))
 
         # # setup button
@@ -67,7 +70,7 @@ class ControlButtons:
         when restart button is pressed, score is not saved
             playground is restored to starting point
         """
-        print("Restart Button was pressed")
+        # print("Restart Button was pressed")
         self.window.playground.delete('all')
         self.window.marbles = self.window.init_marbles()
         self.window.show_marbles()
@@ -79,20 +82,17 @@ class ControlButtons:
         """
         when help is pressed, nothing happens so far
         """
-        print("About Button was pressed")
-        result = AboutPopupWindow(self.frame)
+        # print("About Button was pressed")
+        AboutPopupWindow(self.frame)
 
-    def click_highscore(self):
+    @staticmethod
+    def click_highscore():
         """
         when highscore button is pressed, a popup windows shows up with table of highscore
         """
-        print("Highscore Button was pressed")
-
+        # print("Highscore Button was pressed")
         # create highscore popup window
         HighscoreTable()
-
-    def click_setup(self):
-        print("Setup Button was pressed")
 
     @staticmethod
     def save_highscore(username, achieved_score):
@@ -116,9 +116,12 @@ class HighscoreTable(object):
         self.root.configure(background=self.color_background)
         self.root.resizable(False, False)
 
-        label = tk.Label(self.root, text="High Scores", font=("Helvetica", 22)).grid(row=0, columnspan=3)
+        tk.Label(self.root,
+                 text="High Scores",
+                 font=("Helvetica", 22),
+                 bg=self.color_background).grid(row=0, columnspan=3)
 
-        # create treeview with 3 columns
+        # create tree-view with 3 columns
         cols = ('Position', 'Name', 'Score')
         self.listBox = ttk.Treeview(self.root, columns=cols, show='headings')
 
@@ -156,12 +159,6 @@ class HighscoreTable(object):
                 except IndexError:
                     pass
         return data
-
-    def kill_myself(self, event):
-        """
-        closes popup window
-        """
-        self.root.destroy()
 
 
 class Score:

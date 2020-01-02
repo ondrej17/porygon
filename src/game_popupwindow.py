@@ -46,4 +46,3 @@ class AboutPopupWindow:
         """
         with open(self.filename) as file:
             return file.read()
-
