@@ -238,14 +238,14 @@ class Window:
             columns = 16
         """
         marbles = list()
-        for row in range(9):
+        for row in range(7):
             marbles.append([])
             for column in range(16):
                 # each marble has assigned random number form 1 to 6
                 # numbers represent colors of marbles
                 marbles[row].append(random.randint(1, 6))
                 # marbles[row].append(7)
-        for row in range(9, 17):
+        for row in range(7, 17):
             marbles.append([])
             for column in range(16):
                 # each marble has assigned random number form 1 to 6
