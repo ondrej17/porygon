@@ -422,7 +422,7 @@ class FiringMarble:
 
         # where to fall?
         self.where_to_fall = None
-        self.speed = 4
+        self.speed = 2
 
         # calculate dx and dy
         # fi is angle to which I shoot (event when marble is bounced from right/left mantinel, fi is same)
@@ -482,6 +482,9 @@ class FiringMarble:
             self.something_touched_me = self.touched_or_mantinel()
 
     def second_inner_timer(self):
+        """
+        starts second timer when a marble knows where to fall, it leads marble to that position
+        """
 
         if self.me_in_middle:
             # add the marble to array of marbles at the right position
@@ -576,6 +579,9 @@ class FiringMarble:
 
     @staticmethod
     def random_row():
+        """
+        generates randomly colored row that is added at the top
+        """
         row = []
         for column in range(16):
             # each marble has assigned random number form 1 to 6
@@ -651,6 +657,9 @@ class FiringMarble:
         return dist < 1
 
     def marble_in_my_way(self):
+        """
+        tells mi where to fall when something is in my way
+        """
 
         # I have: fi, row, column, marbles
         # print("In marble_in_my_way:", self.row, self.column)
@@ -899,6 +908,9 @@ class FiringMarble:
         return False
 
     def find_same_color_marbles(self, row, column, my_color):
+        """
+        finds marbles that have same color as me and are connected to me
+        """
         # I have self.color, self.where_to_fall and self.marbles
         # go through my neighbours and destroy them if they have same color and call this function again
 
@@ -974,7 +986,7 @@ class FiringMarble:
     def find_disconnected_marbles(self):
         """
         finds marbles that are not connected to to top mantinel and are alone
-        how ?
+        (only works for one marble being alone)
         """
         for row in range(1, len(self.marbles)-1):
             for column in range(len(self.marbles[0])):
